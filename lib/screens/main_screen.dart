@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 
 import '../providers/app_state.dart';
 import '../widgets/category_list.dart';
-import '../widgets/region_drawer.dart';
 import '../widgets/species_list.dart';
 
 const List<String> _superCats = [
@@ -15,6 +14,16 @@ const List<String> _superCats = [
   'Mammals',
 ];
 
+const List<String> _regionNames = [
+  'Worldwide',
+  'Caribbean',
+  'Pacific',
+  'South Florida',
+  'Hawaii',
+  'Eastern Pacific',
+  'French Polynesia',
+];
+
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
 
@@ -22,7 +31,7 @@ class MainScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _ReefAppBar(),
-      drawer: const RegionDrawer(),
+      drawer: const _AppDrawer(),
       body: const _MainBody(),
     );
   }
@@ -41,23 +50,50 @@ class _ReefAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       backgroundColor: Colors.blue[700],
       foregroundColor: Colors.white,
-      leading: Builder(
-        builder: (innerContext) => IconButton(
-          icon: const Icon(Icons.menu),
-          tooltip: 'Select region',
-          onPressed: () => Scaffold.of(innerContext).openDrawer(),
-        ),
+      title: const Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _RegionDropdown(),
+          SizedBox(width: 16),
+          _SuperCatDropdown(),
+        ],
       ),
-      title: const _SuperCatDropdown(),
-      centerTitle: true,
-      actions: [
-        IconButton(
-          icon: const Icon(Icons.info_outline),
-          tooltip: 'Info',
-          // No-op as specified
-          onPressed: () {},
+      centerTitle: false,
+    );
+  }
+}
+
+class _RegionDropdown extends StatelessWidget {
+  const _RegionDropdown();
+
+  @override
+  Widget build(BuildContext context) {
+    final appState = context.watch<AppState>();
+
+    return DropdownButtonHideUnderline(
+      child: DropdownButton<int>(
+        value: appState.selectedRegion,
+        icon: const Icon(Icons.keyboard_arrow_down, color: Colors.white),
+        dropdownColor: Colors.blue[700],
+        style: const TextStyle(
+          color: Colors.white,
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
         ),
-      ],
+        alignment: AlignmentDirectional.centerEnd,
+        items: List.generate(_regionNames.length, (i) {
+          return DropdownMenuItem<int>(
+            alignment: AlignmentDirectional.centerEnd,
+            value: i,
+            child: Text(_regionNames[i], textAlign: TextAlign.right),
+          );
+        }),
+        onChanged: (value) {
+          if (value != null) {
+            context.read<AppState>().setRegion(value);
+          }
+        },
+      ),
     );
   }
 }
@@ -79,10 +115,12 @@ class _SuperCatDropdown extends StatelessWidget {
           fontSize: 16,
           fontWeight: FontWeight.w600,
         ),
+        alignment: AlignmentDirectional.centerEnd,
         items: _superCats.map((cat) {
           return DropdownMenuItem<String>(
+            alignment: AlignmentDirectional.centerEnd,
             value: cat,
-            child: Text(cat),
+            child: Text(cat, textAlign: TextAlign.right),
           );
         }).toList(),
         onChanged: (value) {
@@ -90,6 +128,42 @@ class _SuperCatDropdown extends StatelessWidget {
             context.read<AppState>().setSuperCat(value);
           }
         },
+      ),
+    );
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Drawer
+// -----------------------------------------------------------------------------
+
+class _AppDrawer extends StatelessWidget {
+  const _AppDrawer();
+
+  @override
+  Widget build(BuildContext context) {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          DrawerHeader(
+            decoration: BoxDecoration(color: Colors.blue[700]),
+            child: const Text(
+              'Reef ID',
+              style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.mail_outline),
+            title: const Text('Contact'),
+            onTap: () => Navigator.pop(context),
+          ),
+          ListTile(
+            leading: const Icon(Icons.info_outline),
+            title: const Text('About'),
+            onTap: () => Navigator.pop(context),
+          ),
+        ],
       ),
     );
   }
@@ -107,14 +181,11 @@ class _MainBody extends StatelessWidget {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // LEFT PANEL — fixed 160px category list
-        const SizedBox(
-          width: 160,
-          child: CategoryList(),
-        ),
+        // LEFT PANEL — 50% width
+        const Expanded(child: CategoryList()),
         // Vertical divider
         const VerticalDivider(width: 1, thickness: 1),
-        // RIGHT PANEL — species list fills remaining space
+        // RIGHT PANEL — 50% width
         const Expanded(child: SpeciesList()),
       ],
     );

@@ -9,11 +9,13 @@ class CategoryEntry {
   final String name;
   final String firstSpeciesId;
   final int firstThumb;
+  final int speciesCount;
 
   const CategoryEntry({
     required this.name,
     required this.firstSpeciesId,
     required this.firstThumb,
+    required this.speciesCount,
   });
 }
 
@@ -67,21 +69,27 @@ class DataService {
     final speciesMap = await _getSpeciesMap();
     final root = await getTaxonomy(region);
 
-    final seen = <String>{};
-    final entries = <CategoryEntry>[];
+    final firstRef = <String, SpeciesRef>{};
+    final counts = <String, int>{};
 
     for (final ref in root.allSpecies) {
       if (ref.superCat != superCat) continue;
       final species = speciesMap[ref.id];
       final cat = species?.category ?? '';
-      if (cat.isEmpty || seen.contains(cat)) continue;
-      seen.add(cat);
-      entries.add(CategoryEntry(
-        name: cat,
+      if (cat.isEmpty) continue;
+      firstRef.putIfAbsent(cat, () => ref);
+      counts[cat] = (counts[cat] ?? 0) + 1;
+    }
+
+    final entries = firstRef.entries.map((e) {
+      final ref = e.value;
+      return CategoryEntry(
+        name: e.key,
         firstSpeciesId: ref.id,
         firstThumb: ref.thumb,
-      ));
-    }
+        speciesCount: counts[e.key]!,
+      );
+    }).toList();
 
     entries.sort((a, b) => a.name.compareTo(b.name));
     return entries;
@@ -102,6 +110,6 @@ class DataService {
             ref.superCat == superCat &&
             (speciesMap[ref.id]?.category ?? '') == categoryName)
         .toList()
-      ..sort((a, b) => a.name.compareTo(b.name));
+      ..sort((a, b) => a.sname.compareTo(b.sname));
   }
 }

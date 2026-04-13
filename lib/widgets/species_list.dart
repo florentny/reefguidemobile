@@ -128,29 +128,29 @@ class _SpeciesCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Photo
-          Image.asset(
-            'asset/pix/${ref.id}${ref.thumb}.jpg',
-            height: 140,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) => Container(
-              height: 140,
-              color: Colors.grey[200],
-              child: const Icon(
-                Icons.camera_alt,
-                color: Colors.grey,
-                size: 40,
+          // Photo — 4:3 aspect ratio
+          AspectRatio(
+            aspectRatio: 4 / 3,
+            child: Image.asset(
+              'asset/pix/${ref.id}${ref.thumb}.jpg',
+              fit: BoxFit.cover,
+              errorBuilder: (context, error, stackTrace) => Container(
+                color: Colors.grey[200],
+                child: const Icon(
+                  Icons.camera_alt,
+                  color: Colors.grey,
+                  size: 40,
+                ),
               ),
             ),
           ),
-          // Name — fixed height of 32px so scroll math stays accurate
-          SizedBox(
-            height: 32,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Text(
+          // Names
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
                   ref.name,
                   style: const TextStyle(
                     fontSize: 13,
@@ -159,7 +159,18 @@ class _SpeciesCard extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-              ),
+                if (ref.sname.isNotEmpty)
+                  Text(
+                    ref.sname,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontStyle: FontStyle.italic,
+                      color: Colors.black54,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+              ],
             ),
           ),
           const Divider(height: 1),

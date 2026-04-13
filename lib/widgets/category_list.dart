@@ -4,8 +4,8 @@ import 'package:provider/provider.dart';
 import '../providers/app_state.dart';
 import '../services/data_service.dart';
 
-// Each category row: image 48 + vertical padding 6+6 = 60px fixed height.
-const double _kItemHeight = 60.0;
+// Each category row: image 60 + vertical padding 6+6 = 72px fixed height.
+const double _kItemHeight = 72.0;
 
 const List<String> _allLetters = [
   'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
@@ -21,10 +21,36 @@ class CategoryList extends StatefulWidget {
 
 class _CategoryListState extends State<CategoryList> {
   final ScrollController _scrollController = ScrollController();
+  final TextEditingController _searchController = TextEditingController();
+  Future<List<CategoryEntry>>? _categoriesFuture;
+  int? _lastRegion;
+  String? _lastSuperCat;
+  String _searchQuery = '';
+
+  Future<List<CategoryEntry>> _getCategories(int region, String superCat) {
+    if (_categoriesFuture == null ||
+        _lastRegion != region ||
+        _lastSuperCat != superCat) {
+      _lastRegion = region;
+      _lastSuperCat = superCat;
+      _categoriesFuture =
+          DataService.instance.getCategoriesForRegionAndSuperCat(region, superCat);
+    }
+    return _categoriesFuture!;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _searchController.addListener(() {
+      setState(() => _searchQuery = _searchController.text);
+    });
+  }
 
   @override
   void dispose() {
     _scrollController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -60,12 +86,7 @@ class _CategoryListState extends State<CategoryList> {
     final selected = appState.selectedCategory;
 
     return FutureBuilder<List<CategoryEntry>>(
-      // Key forces a fresh future + scroll reset when region/superCat change.
-      key: ValueKey('$region-$superCat'),
-      future: DataService.instance.getCategoriesForRegionAndSuperCat(
-        region,
-        superCat,
-      ),
+      future: _getCategories(region, superCat),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
@@ -90,26 +111,69 @@ class _CategoryListState extends State<CategoryList> {
           );
         }
 
-        final letterIndexMap = _computeLetterIndex(categories);
+        final filtered = _searchQuery.isEmpty
+            ? categories
+            : categories
+                .where((e) => e.name
+                    .toLowerCase()
+                    .contains(_searchQuery.toLowerCase()))
+                .toList();
 
-        return Stack(
+        final letterIndexMap = _computeLetterIndex(filtered);
+
+        return Column(
           children: [
-            ListView.builder(
-              controller: _scrollController,
-              padding: EdgeInsets.zero,
-              itemCount: categories.length,
-              itemBuilder: (context, index) {
-                final entry = categories[index];
-                return _CategoryRow(
-                  entry: entry,
-                  isSelected: entry.name == selected,
-                  onTap: () => context.read<AppState>().setCategory(entry.name),
-                );
-              },
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              child: TextField(
+                controller: _searchController,
+                decoration: InputDecoration(
+                  hintText: 'Search…',
+                  hintStyle: const TextStyle(fontSize: 12),
+                  prefixIcon: const Icon(Icons.search, size: 18),
+                  suffixIcon: _searchQuery.isNotEmpty
+                      ? IconButton(
+                          icon: const Icon(Icons.clear, size: 16),
+                          onPressed: () => _searchController.clear(),
+                        )
+                      : null,
+                  isDense: true,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 8),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                style: const TextStyle(fontSize: 12),
+              ),
             ),
-            _AlphabetSidebar(
-              availableLetters: letterIndexMap.keys.toSet(),
-              onLetterTap: (letter) => _scrollToLetter(letter, letterIndexMap),
+            Expanded(
+              child: filtered.isEmpty
+                  ? const Center(
+                      child: Text('No results', style: TextStyle(fontSize: 12)),
+                    )
+                  : Stack(
+                      children: [
+                        ListView.builder(
+                          controller: _scrollController,
+                          padding: EdgeInsets.zero,
+                          itemCount: filtered.length,
+                          itemBuilder: (context, index) {
+                            final entry = filtered[index];
+                            return _CategoryRow(
+                              entry: entry,
+                              isSelected: entry.name == selected,
+                              onTap: () =>
+                                  context.read<AppState>().setCategory(entry.name),
+                            );
+                          },
+                        ),
+                        _AlphabetSidebar(
+                          availableLetters: letterIndexMap.keys.toSet(),
+                          onLetterTap: (letter) =>
+                              _scrollToLetter(letter, letterIndexMap),
+                        ),
+                      ],
+                    ),
             ),
           ],
         );
@@ -154,12 +218,12 @@ class _CategoryRow extends StatelessWidget {
               borderRadius: BorderRadius.circular(4),
               child: Image.asset(
                 'asset/pix/${entry.firstSpeciesId}${entry.firstThumb}.jpg',
-                width: 48,
-                height: 48,
+                width: 60,
+                height: 60,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) => Container(
-                  width: 48,
-                  height: 48,
+                  width: 60,
+                  height: 60,
                   color: Colors.grey[200],
                   child: const Icon(Icons.image, color: Colors.grey, size: 24),
                 ),
@@ -168,7 +232,7 @@ class _CategoryRow extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                entry.name,
+                '${entry.name} (${entry.speciesCount})',
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight:

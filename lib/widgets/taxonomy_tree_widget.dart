@@ -51,9 +51,9 @@ class TaxonomyTreeWidget extends StatelessWidget {
               Text(
                 'Taxonomy',
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.blue[700],
-                    ),
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue[700],
+                ),
               ),
               const SizedBox(height: 8),
               _TaxonomyPathList(path: path, speciesId: speciesId),
@@ -75,10 +75,11 @@ class _TaxonomyPathList extends StatelessWidget {
   Widget build(BuildContext context) {
     final items = <Widget>[];
 
-    for (var i = 0; i < path.length; i++) {
+    // Skip index 0 (root "Biota" node) — start from the first meaningful rank.
+    for (var i = 1; i < path.length; i++) {
       final node = path[i];
-      final indent = i * 16.0;
-      final prefix = i == 0 ? '' : '\u2514'; // └
+      final indent = (i - 1) * 16.0;
+      final prefix = i == 1 ? '' : '\u2514'; // └
 
       items.add(
         Padding(
@@ -96,14 +97,19 @@ class _TaxonomyPathList extends StatelessWidget {
                     text: '$prefix ',
                     style: TextStyle(color: Colors.grey[400]),
                   ),
-                TextSpan(text: node.name),
+                TextSpan(
+                  text: node.name,
+                  style: const TextStyle(fontStyle: FontStyle.italic),
+                ),
                 if (node.rank.isNotEmpty)
                   TextSpan(
                     text: ' (${node.rank})',
-                    style: const TextStyle(
-                      fontSize: 11,
-                      color: Colors.grey,
-                    ),
+                    style: const TextStyle(fontSize: 11, color: Colors.grey),
+                  ),
+                if (node.category != null && node.category!.isNotEmpty)
+                  TextSpan(
+                    text: '  ${node.category}',
+                    style: TextStyle(fontSize: 11, color: Colors.blue[700]),
                   ),
               ],
             ),
@@ -113,10 +119,12 @@ class _TaxonomyPathList extends StatelessWidget {
     }
 
     // Add the species leaf entry, one level deeper than the last path node
-    final leafIndent = path.length * 16.0;
+    final leafIndent = (path.length - 1) * 16.0;
     // Find the SpeciesRef in the last path node
     final lastNode = path.last;
-    final speciesRef = lastNode.species.where((s) => s.id == speciesId).firstOrNull;
+    final speciesRef = lastNode.species
+        .where((s) => s.id == speciesId)
+        .firstOrNull;
 
     if (speciesRef != null) {
       items.add(
