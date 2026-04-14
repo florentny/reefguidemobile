@@ -19,6 +19,24 @@ class CategoryEntry {
   });
 }
 
+class SpeciesGroup {
+  final String? groupName; // null = ungrouped (no enclosing family/subfamily)
+  final String? groupRank; // e.g. "Family", "Subfamily"
+  final String? parentName; // enclosing Family name when groupRank == "Subfamily"
+  final String? parentCategory; // category label of the enclosing Family node
+  final String? groupCategory; // taxonomy node's category label, if present
+  final List<SpeciesRef> species;
+
+  const SpeciesGroup({
+    required this.groupName,
+    required this.groupRank,
+    required this.parentName,
+    required this.parentCategory,
+    required this.groupCategory,
+    required this.species,
+  });
+}
+
 /// Singleton data service. Load and cache JSON assets.
 class DataService {
   DataService._();
@@ -111,5 +129,119 @@ class DataService {
             (speciesMap[ref.id]?.category ?? '') == categoryName)
         .toList()
       ..sort((a, b) => a.sname.compareTo(b.sname));
+  }
+
+  /// Same as [getSpeciesForCategory] but groups species by the nearest enclosing
+  /// Family or Subfamily node in the taxonomy tree. Groups are returned in
+  /// tree-walk order; species within each group are sorted by scientific name.
+  Future<List<SpeciesGroup>> getSpeciesGroupedForCategory(
+    int region,
+    String categoryName,
+    String superCat,
+  ) async {
+    final speciesMap = await _getSpeciesMap();
+    final root = await getTaxonomy(region);
+
+    // Ordered list of group keys (null = ungrouped)
+    final groupOrder = <String?>[];
+    final groupRanks = <String?, String?>{};
+    final groupParents = <String?, String?>{};
+    final groupParentCategories = <String?, String?>{};
+    final groupCategories = <String?, String?>{};
+    final groupSpecies = <String?, List<SpeciesRef>>{};
+
+    void walk(
+      TaxonomyNode node, {
+      String? order,
+      String? orderCategory,
+      String? family,
+      String? familyCategory,
+      String? subfamily,
+      String? subfamilyCategory,
+    }) {
+      final rank = node.rank;
+      if (rank == 'Order') {
+        order = node.name;
+        orderCategory = node.category;
+        family = null;
+        familyCategory = null;
+        subfamily = null;
+        subfamilyCategory = null;
+      } else if (rank == 'Family') {
+        family = node.name;
+        familyCategory = node.category;
+        subfamily = null;
+        subfamilyCategory = null;
+      } else if (rank == 'Subfamily') {
+        subfamily = node.name;
+        subfamilyCategory = node.category;
+      }
+
+      // Prefer Subfamily > Family > Order as the group key.
+      final groupKey = subfamily ?? family ?? order;
+      final groupRank = subfamily != null ? 'Subfamily'
+          : family != null ? 'Family'
+          : order != null ? 'Order'
+          : null;
+      // Category belongs to whichever rank defines this group.
+      final groupCat = subfamily != null ? subfamilyCategory
+          : family != null ? familyCategory
+          : orderCategory;
+      // Parent line only shown for Subfamily (parent = enclosing Family).
+      final parentName = subfamily != null ? family : null;
+      final parentCat = subfamily != null ? familyCategory : null;
+
+      void registerGroup() {
+        groupOrder.add(groupKey);
+        groupRanks[groupKey] = groupRank;
+        groupParents[groupKey] = parentName;
+        groupParentCategories[groupKey] = parentCat;
+        groupCategories[groupKey] = groupCat;
+        groupSpecies[groupKey] = [];
+      }
+
+      if (groupKey != null && !groupSpecies.containsKey(groupKey)) {
+        registerGroup();
+      }
+
+      for (final ref in node.species) {
+        if (ref.superCat == superCat &&
+            (speciesMap[ref.id]?.category ?? '') == categoryName) {
+          if (!groupSpecies.containsKey(groupKey)) {
+            registerGroup();
+          }
+          groupSpecies[groupKey]!.add(ref);
+        }
+      }
+
+      for (final child in node.children) {
+        walk(child,
+          order: order,
+          orderCategory: orderCategory,
+          family: family,
+          familyCategory: familyCategory,
+          subfamily: subfamily,
+          subfamilyCategory: subfamilyCategory,
+        );
+      }
+    }
+
+    walk(root);
+
+    final result = <SpeciesGroup>[];
+    for (final key in groupOrder) {
+      final species = groupSpecies[key]!;
+      if (species.isEmpty) continue;
+      species.sort((a, b) => a.sname.compareTo(b.sname));
+      result.add(SpeciesGroup(
+        groupName: key,
+        groupRank: groupRanks[key],
+        parentName: groupParents[key],
+        parentCategory: groupParentCategories[key],
+        groupCategory: groupCategories[key],
+        species: species,
+      ));
+    }
+    return result;
   }
 }

@@ -133,27 +133,32 @@ class _PhotoCarouselState extends State<PhotoCarousel> {
                 ),
               ),
             ],
-            // Photo location caption (bottom)
-            if (photos[_currentPage].location.isNotEmpty)
-              Positioned(
+            // Photo location + type caption (bottom)
+            Builder(builder: (context) {
+              final photo = photos[_currentPage];
+              final location = photo.location;
+              final type = photo.type;
+              if (location.isEmpty && type.isEmpty) return const SizedBox.shrink();
+              final parts = [
+                if (location.isNotEmpty) location,
+                if (type.isNotEmpty) type,
+              ];
+              return Positioned(
                 bottom: 0,
                 left: 0,
                 right: 0,
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                   color: Colors.black45,
                   child: Text(
-                    photos[_currentPage].location,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 11,
-                    ),
+                    parts.join('  ·  '),
+                    style: const TextStyle(color: Colors.white, fontSize: 11),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                 ),
-              ),
+              );
+            }),
           ],
         ),
         // Dot indicator

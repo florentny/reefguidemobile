@@ -78,7 +78,7 @@ class _TaxonomyPathList extends StatelessWidget {
     // Skip index 0 (root "Biota" node) — start from the first meaningful rank.
     for (var i = 1; i < path.length; i++) {
       final node = path[i];
-      final indent = (i - 1) * 16.0;
+      final indent = (i - 1) * 10.0;
       final prefix = i == 1 ? '' : '\u2514'; // └
 
       items.add(
@@ -119,7 +119,7 @@ class _TaxonomyPathList extends StatelessWidget {
     }
 
     // Add the species leaf entry, one level deeper than the last path node
-    final leafIndent = (path.length - 1) * 16.0;
+    final leafIndent = (path.length - 1) * 10.0;
     // Find the SpeciesRef in the last path node
     final lastNode = path.last;
     final speciesRef = lastNode.species

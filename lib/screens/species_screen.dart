@@ -181,7 +181,7 @@ class _NameHeader extends StatelessWidget {
             Text(
               species.name,
               style: TextStyle(
-                fontSize: 16,
+                fontSize: 18,
                 color: Colors.teal[700],
                 fontWeight: FontWeight.w600,
               ),
@@ -192,7 +192,7 @@ class _NameHeader extends StatelessWidget {
             style: const TextStyle(
               fontSize: 13,
               fontStyle: FontStyle.italic,
-              color: Colors.grey,
+              color: Colors.black87,
             ),
           ),
         ],
@@ -217,7 +217,8 @@ class _DetailsSection extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (species.size.isNotEmpty) _DetailRow(label: 'Size', value: species.size),
+          if (species.size.isNotEmpty)
+            _DetailRow(label: 'Size', value: species.size),
           if (species.depth.isNotEmpty)
             _DetailRow(label: 'Depth', value: species.depth),
           if (species.distribution.isNotEmpty)
@@ -225,8 +226,7 @@ class _DetailsSection extends StatelessWidget {
               label: 'Distribution',
               value: species.distribution.join(', '),
             ),
-          if (species.endemic)
-            const _DetailRow(label: 'Endemic', value: 'Yes'),
+          if (species.endemic) const _DetailRow(label: 'Endemic', value: 'Yes'),
           if (species.synonyms.isNotEmpty)
             _DetailRow(label: 'Synonyms', value: species.synonyms),
           if (species.aka.isNotEmpty)
@@ -288,11 +288,7 @@ class _NavButton extends StatelessWidget {
   final VoidCallback? onPressed;
   final bool enabled;
 
-  const _NavButton({
-    required this.label,
-    this.onPressed,
-    this.enabled = true,
-  });
+  const _NavButton({required this.label, this.onPressed, this.enabled = true});
 
   @override
   Widget build(BuildContext context) {
@@ -301,14 +297,13 @@ class _NavButton extends StatelessWidget {
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
-          backgroundColor:
-              enabled ? Colors.white.withAlpha(51) : Colors.white.withAlpha(20),
+          backgroundColor: enabled
+              ? Colors.white.withAlpha(51)
+              : Colors.white.withAlpha(20),
           foregroundColor: enabled ? Colors.white : Colors.white54,
           padding: const EdgeInsets.symmetric(horizontal: 10),
           minimumSize: const Size(36, 36),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           elevation: 0,
         ),
         child: Text(

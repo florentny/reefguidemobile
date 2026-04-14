@@ -20,17 +20,14 @@ class SpeciesList extends StatelessWidget {
       return const Center(
         child: Text(
           'Select a category',
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.grey,
-          ),
+          style: TextStyle(fontSize: 14, color: Colors.grey),
         ),
       );
     }
 
-    return FutureBuilder<List<SpeciesRef>>(
+    return FutureBuilder<List<SpeciesGroup>>(
       key: ValueKey('$region-$superCat-$category'),
-      future: DataService.instance.getSpeciesForCategory(
+      future: DataService.instance.getSpeciesGroupedForCategory(
         region,
         category,
         superCat,
@@ -47,23 +44,46 @@ class SpeciesList extends StatelessWidget {
             ),
           );
         }
-        final species = snapshot.data ?? [];
+        final groups = snapshot.data ?? [];
+        final totalCount = groups.fold(0, (sum, g) => sum + g.species.length);
 
-        // Collect ordered IDs for prev/next navigation in species detail screen
-        final orderedIds = species.map((s) => s.id).toList();
+        // Flatten into a scrollable item list.
+        // Item types: _SectionHeader (SpeciesGroup), SpeciesRef.
+
+        // Only emit section headers when there are multiple groups, or when the
+        // single group has a named family/subfamily.
+        final showSections =
+            groups.length > 1 ||
+            (groups.length == 1 && groups.first.groupName != null);
+
+        final items = <Object>[];
+
+        // Collect ordered IDs for prev/next navigation in species detail screen.
+        final orderedIds = <String>[];
+
+        for (final group in groups) {
+          if (showSections && group.groupName != null) {
+            items.add(group); // section header marker
+          }
+          for (final ref in group.species) {
+            items.add(ref);
+            orderedIds.add(ref.id);
+          }
+        }
 
         return ListView.builder(
-          // Reset scroll to top when category changes
           key: ValueKey(category),
-          itemCount: species.length + 1, // +1 for header
+          itemCount: items.length,
           itemBuilder: (context, index) {
-            if (index == 0) {
-              return _SpeciesListHeader(
-                category: category,
-                count: species.length,
+            final item = items[index];
+            if (item is SpeciesGroup) {
+              return _FamilyHeader(
+                group: item,
+                totalCount: totalCount,
+                selectedCategory: category,
               );
             }
-            final ref = species[index - 1];
+            final ref = item as SpeciesRef;
             return _SpeciesCard(
               ref: ref,
               onTap: () {
@@ -83,29 +103,130 @@ class SpeciesList extends StatelessWidget {
 }
 
 // -----------------------------------------------------------------------------
-// Header row
+// Family / Subfamily section header
 // -----------------------------------------------------------------------------
 
-class _SpeciesListHeader extends StatelessWidget {
-  final String category;
-  final int count;
+class _FamilyHeader extends StatelessWidget {
+  final SpeciesGroup group;
+  final int totalCount;
+  final String? selectedCategory;
 
-  const _SpeciesListHeader({required this.category, required this.count});
+  const _FamilyHeader({
+    required this.group,
+    required this.totalCount,
+    required this.selectedCategory,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final isSubfamily =
+        group.groupRank == 'Subfamily' && group.parentName != null;
+
+    // Effective category: subfamily's takes precedence over family's.
+    final String? effectiveCategory = isSubfamily
+        ? (group.groupCategory ?? group.parentCategory)
+        : group.groupCategory;
+
+    // Show the category above the header only when it differs from the
+    // currently selected category in the left panel.
+    final String? categoryAbove =
+        (effectiveCategory != null && effectiveCategory != selectedCategory)
+        ? effectiveCategory
+        : null;
+
     return Container(
-      height: 44,
-      padding: const EdgeInsets.symmetric(horizontal: 12),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       color: Colors.blue[700],
       alignment: Alignment.centerLeft,
-      child: Text(
-        '$category ($count species)',
-        style: const TextStyle(
-          color: Colors.white,
-          fontWeight: FontWeight.bold,
-          fontSize: 13,
-        ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (categoryAbove != null)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: Text(
+                categoryAbove,
+                style: TextStyle(
+                  fontSize: 13,
+                  color: Colors.white.withValues(alpha: 1.0),
+                  //fontWeight: FontWeight.normal,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          if (isSubfamily)
+            RichText(
+              text: TextSpan(
+                style: TextStyle(
+                  fontSize: 11,
+                  color: Colors.white.withValues(alpha: 1.0),
+                  fontWeight: FontWeight.normal,
+                ),
+                children: [
+                  TextSpan(
+                    text: group.parentName!,
+                    style: const TextStyle(fontStyle: FontStyle.italic),
+                  ),
+                  const TextSpan(
+                    text: '  (Family)',
+                    style: TextStyle(
+                      fontStyle: FontStyle.normal,
+                      color: Colors.white70,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          Padding(
+            padding: EdgeInsets.only(left: isSubfamily ? 16 : 0),
+            child: RichText(
+              text: TextSpan(
+                children: [
+                  if (isSubfamily)
+                    TextSpan(
+                      text: '\u2514 ', // └
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Colors.white.withValues(alpha: 0.6),
+                        fontFamily: 'monospace',
+                        fontWeight: FontWeight.normal,
+                      ),
+                    ),
+                  TextSpan(
+                    text: group.groupName,
+                    style: const TextStyle(
+                      fontSize: 11,
+                      fontStyle: FontStyle.italic,
+                      fontWeight: FontWeight.normal,
+                      color: Colors.white,
+                    ),
+                  ),
+                  if (group.groupRank != null)
+                    TextSpan(
+                      text: '  (${group.groupRank})',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.normal,
+                        color: Colors.white.withValues(alpha: 0.75),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+          if (group.species.length < totalCount)
+            Padding(
+              padding: const EdgeInsets.only(top: 2),
+              child: Text(
+                '${group.species.length} species',
+                style: TextStyle(
+                  fontSize: 11,
+                  color: Colors.white.withValues(alpha: 0.75),
+                ),
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -179,4 +300,3 @@ class _SpeciesCard extends StatelessWidget {
     );
   }
 }
-
