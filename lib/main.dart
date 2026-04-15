@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import 'providers/app_state.dart';
-import 'screens/home_screen.dart';
+import 'router.dart';
 
 void main() async {
+  usePathUrlStrategy();
+  GoRouter.optionURLReflectsImperativeAPIs = true;
   WidgetsFlutterBinding.ensureInitialized();
   runApp(
     ChangeNotifierProvider(
@@ -19,13 +23,13 @@ class ReefMobileApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'reefguide.org',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
         useMaterial3: true,
       ),
-      home: const HomeScreen(),
+      routerConfig: appRouter,
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../models/species.dart';
@@ -20,7 +21,7 @@ class SpeciesScreen extends StatelessWidget {
     if (speciesId == null) {
       // Should not normally happen; pop defensively
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (context.mounted) Navigator.of(context).maybePop();
+        if (context.mounted && context.canPop()) context.pop();
       });
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
@@ -81,17 +82,13 @@ class SpeciesScreen extends StatelessWidget {
   }
 
   AppBar _buildAppBar(BuildContext context, Species? species) {
-    final appState = context.read<AppState>();
     return AppBar(
       backgroundColor: Colors.blue[700],
       foregroundColor: Colors.white,
       automaticallyImplyLeading: false,
       leading: _NavButton(
         label: '<',
-        onPressed: () {
-          appState.closeSpecies();
-          Navigator.of(context).pop();
-        },
+        onPressed: () => context.pop(),
       ),
       title: null,
       actions: [
@@ -160,10 +157,7 @@ class _SpeciesDetail extends StatelessWidget {
       automaticallyImplyLeading: false,
       leading: _NavButton(
         label: '<',
-        onPressed: () {
-          context.read<AppState>().closeSpecies();
-          Navigator.of(context).pop();
-        },
+        onPressed: () => context.pop(),
       ),
       centerTitle: false,
       title: lowestTaxonomyCategory != null

@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'package:go_router/go_router.dart';
+
 import '../providers/app_state.dart';
 import '../widgets/category_list.dart';
 import '../widgets/species_list.dart';
-import 'info_screen.dart';
 
 const List<String> _superCats = [
   'Fish',
@@ -159,7 +160,7 @@ class _AppDrawer extends StatelessWidget {
             title: const Text('Home'),
             onTap: () {
               Navigator.pop(context); // close drawer
-              Navigator.of(context).pop(); // go back to home screen
+              context.go('/');
             },
           ),
           ListTile(
@@ -171,10 +172,8 @@ class _AppDrawer extends StatelessWidget {
             leading: const Icon(Icons.info_outline),
             title: const Text('About'),
             onTap: () {
-              Navigator.pop(context);
-              Navigator.of(context).push(
-                MaterialPageRoute<void>(builder: (_) => const InfoScreen()),
-              );
+              Navigator.pop(context); // close drawer
+              context.push('/info');
             },
           ),
         ],

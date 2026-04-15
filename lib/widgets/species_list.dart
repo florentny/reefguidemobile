@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../models/taxonomy_node.dart';
 import '../providers/app_state.dart';
-import '../screens/species_screen.dart';
 import '../services/data_service.dart';
 
 class SpeciesList extends StatelessWidget {
@@ -87,11 +87,18 @@ class SpeciesList extends StatelessWidget {
             return _SpeciesCard(
               ref: ref,
               onTap: () {
-                context.read<AppState>().openSpecies(ref.id, orderedIds);
-                Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (_) => const SpeciesScreen(),
-                  ),
+                final appState = context.read<AppState>();
+                appState.openSpecies(ref.id, orderedIds);
+                context.push(
+                  Uri(
+                    path: '/browse/species/${ref.id}',
+                    queryParameters: {
+                      'region': '${appState.selectedRegion}',
+                      'supercat': appState.selectedSuperCat,
+                      if (appState.selectedCategory != null)
+                        'category': appState.selectedCategory!,
+                    },
+                  ).toString(),
                 );
               },
             );

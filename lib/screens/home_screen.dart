@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import 'main_screen.dart';
+import 'package:go_router/go_router.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -28,11 +27,7 @@ class HomeScreen extends StatelessWidget {
             const Spacer(),
             ElevatedButton(
               onPressed: () {
-                Navigator.of(context).push(
-                  MaterialPageRoute<void>(
-                    builder: (_) => const MainScreen(),
-                  ),
-                );
+                context.push('/browse');
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
