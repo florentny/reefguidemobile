@@ -28,6 +28,7 @@ class HomeScreen extends StatelessWidget {
       ),
       drawer: const AppDrawer(),
       body: SafeArea(
+        child: SingleChildScrollView(
         child: Column(
           children: [
             const Padding(
@@ -120,7 +121,7 @@ class HomeScreen extends StatelessWidget {
               ),
               child: const Text('Search by species name'),
             ),
-            const Spacer(),
+            const SizedBox(height: 24),
             const Padding(
               padding: EdgeInsets.only(bottom: 12),
               child: Text(
@@ -129,6 +130,7 @@ class HomeScreen extends StatelessWidget {
               ),
             ),
           ],
+        ),
         ),
       ),
     );

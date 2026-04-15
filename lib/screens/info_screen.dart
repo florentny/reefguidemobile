@@ -48,6 +48,36 @@ class InfoScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 32),
 
+                // ── Website ───────────────────────────────────────────────
+                Text(
+                  'Website',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue[700],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'https://reefguide.org',
+                  style: TextStyle(fontSize: 14, color: Colors.black87),
+                ),
+                const SizedBox(height: 32),
+
+                // ── Contact ───────────────────────────────────────────────
+                Text(
+                  'Contact',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue[700],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  'mobile@reefguide.org',
+                  style: TextStyle(fontSize: 14, color: Colors.black87),
+                ),
+                const SizedBox(height: 32),
+
                 // ── Copyright ──────────────────────────────────────────────
                 Text(
                   'Copyright',
