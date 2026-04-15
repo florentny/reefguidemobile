@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../providers/app_state.dart';
 import '../widgets/category_list.dart';
 import '../widgets/species_list.dart';
+import 'info_screen.dart';
 
 const List<String> _superCats = [
   'Fish',
@@ -52,11 +53,7 @@ class _ReefAppBar extends StatelessWidget implements PreferredSizeWidget {
       foregroundColor: Colors.white,
       title: const Row(
         mainAxisSize: MainAxisSize.min,
-        children: [
-          _RegionDropdown(),
-          SizedBox(width: 16),
-          _SuperCatDropdown(),
-        ],
+        children: [_RegionDropdown(), SizedBox(width: 16), _SuperCatDropdown()],
       ),
       centerTitle: false,
     );
@@ -149,9 +146,21 @@ class _AppDrawer extends StatelessWidget {
           DrawerHeader(
             decoration: BoxDecoration(color: Colors.blue[700]),
             child: const Text(
-              'Reef ID',
-              style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+              'reefguide.org',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+              ),
             ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.home_outlined),
+            title: const Text('Home'),
+            onTap: () {
+              Navigator.pop(context); // close drawer
+              Navigator.of(context).pop(); // go back to home screen
+            },
           ),
           ListTile(
             leading: const Icon(Icons.mail_outline),
@@ -161,7 +170,12 @@ class _AppDrawer extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.info_outline),
             title: const Text('About'),
-            onTap: () => Navigator.pop(context),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.of(context).push(
+                MaterialPageRoute<void>(builder: (_) => const InfoScreen()),
+              );
+            },
           ),
         ],
       ),

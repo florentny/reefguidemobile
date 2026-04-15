@@ -25,6 +25,8 @@ class SpeciesGroup {
   final String? parentName; // enclosing Family name when groupRank == "Subfamily"
   final String? parentCategory; // category label of the enclosing Family node
   final String? groupCategory; // taxonomy node's category label, if present
+  // Non-null when every species in this group shares the same genus-level category.
+  final String? genusGroupCategory;
   final List<SpeciesRef> species;
 
   const SpeciesGroup({
@@ -33,7 +35,20 @@ class SpeciesGroup {
     required this.parentName,
     required this.parentCategory,
     required this.groupCategory,
+    required this.genusGroupCategory,
     required this.species,
+  });
+}
+
+class AppStats {
+  final int speciesCount;
+  final int photoCount;
+  final int categoryCount;
+
+  const AppStats({
+    required this.speciesCount,
+    required this.photoCount,
+    required this.categoryCount,
   });
 }
 
@@ -113,6 +128,18 @@ class DataService {
     return entries;
   }
 
+  /// Returns aggregate stats across all species.
+  Future<AppStats> getStats() async {
+    final species = await getAllSpecies();
+    final totalPhotos = species.fold(0, (sum, s) => sum + s.photos.length);
+    final categories = species.map((s) => s.category).where((c) => c.isNotEmpty).toSet();
+    return AppStats(
+      speciesCount: species.length,
+      photoCount: totalPhotos,
+      categoryCount: categories.length,
+    );
+  }
+
   /// Returns all [SpeciesRef] in [region] whose species_all.json [category]
   /// matches [categoryName] and whose [superCat] matches, sorted by name.
   Future<List<SpeciesRef>> getSpeciesForCategory(
@@ -149,6 +176,8 @@ class DataService {
     final groupParentCategories = <String?, String?>{};
     final groupCategories = <String?, String?>{};
     final groupSpecies = <String?, List<SpeciesRef>>{};
+    // Maps species id → genus-level category for species added to groups.
+    final speciesGenusCategory = <String, String?>{};
 
     void walk(
       TaxonomyNode node, {
@@ -158,6 +187,7 @@ class DataService {
       String? familyCategory,
       String? subfamily,
       String? subfamilyCategory,
+      String? genusCategory,
     }) {
       final rank = node.rank;
       if (rank == 'Order') {
@@ -167,14 +197,19 @@ class DataService {
         familyCategory = null;
         subfamily = null;
         subfamilyCategory = null;
+        genusCategory = null;
       } else if (rank == 'Family') {
         family = node.name;
         familyCategory = node.category;
         subfamily = null;
         subfamilyCategory = null;
+        genusCategory = null;
       } else if (rank == 'Subfamily') {
         subfamily = node.name;
         subfamilyCategory = node.category;
+        genusCategory = null;
+      } else if (rank == 'Genus') {
+        genusCategory = node.category;
       }
 
       // Prefer Subfamily > Family > Order as the group key.
@@ -211,6 +246,7 @@ class DataService {
             registerGroup();
           }
           groupSpecies[groupKey]!.add(ref);
+          speciesGenusCategory[ref.id] = genusCategory;
         }
       }
 
@@ -222,6 +258,7 @@ class DataService {
           familyCategory: familyCategory,
           subfamily: subfamily,
           subfamilyCategory: subfamilyCategory,
+          genusCategory: genusCategory,
         );
       }
     }
@@ -233,12 +270,23 @@ class DataService {
       final species = groupSpecies[key]!;
       if (species.isEmpty) continue;
       species.sort((a, b) => a.sname.compareTo(b.sname));
+
+      // Use a genus-level category as the header name if all species in this
+      // group share the same non-empty genus category.
+      final genusCats = species
+          .map((s) => speciesGenusCategory[s.id])
+          .where((c) => c != null && c.isNotEmpty)
+          .toSet();
+      final genusGroupCat =
+          (genusCats.length == 1) ? genusCats.first : null;
+
       result.add(SpeciesGroup(
         groupName: key,
         groupRank: groupRanks[key],
         parentName: groupParents[key],
         parentCategory: groupParentCategories[key],
         groupCategory: groupCategories[key],
+        genusGroupCategory: genusGroupCat,
         species: species,
       ));
     }

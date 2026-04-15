@@ -8,8 +8,33 @@ import '../services/data_service.dart';
 const double _kItemHeight = 72.0;
 
 const List<String> _allLetters = [
-  'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
-  'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z', '#',
+  'A',
+  'B',
+  'C',
+  'D',
+  'E',
+  'F',
+  'G',
+  'H',
+  'I',
+  'J',
+  'K',
+  'L',
+  'M',
+  'N',
+  'O',
+  'P',
+  'Q',
+  'R',
+  'S',
+  'T',
+  'U',
+  'V',
+  'W',
+  'X',
+  'Y',
+  'Z',
+  '#',
 ];
 
 class CategoryList extends StatefulWidget {
@@ -33,8 +58,8 @@ class _CategoryListState extends State<CategoryList> {
         _lastSuperCat != superCat) {
       _lastRegion = region;
       _lastSuperCat = superCat;
-      _categoriesFuture =
-          DataService.instance.getCategoriesForRegionAndSuperCat(region, superCat);
+      _categoriesFuture = DataService.instance
+          .getCategoriesForRegionAndSuperCat(region, superCat);
     }
     return _categoriesFuture!;
   }
@@ -114,10 +139,12 @@ class _CategoryListState extends State<CategoryList> {
         final filtered = _searchQuery.isEmpty
             ? categories
             : categories
-                .where((e) => e.name
-                    .toLowerCase()
-                    .contains(_searchQuery.toLowerCase()))
-                .toList();
+                  .where(
+                    (e) => e.name.toLowerCase().contains(
+                      _searchQuery.toLowerCase(),
+                    ),
+                  )
+                  .toList();
 
         final letterIndexMap = _computeLetterIndex(filtered);
 
@@ -130,15 +157,31 @@ class _CategoryListState extends State<CategoryList> {
                 decoration: InputDecoration(
                   hintText: 'Search…',
                   hintStyle: const TextStyle(fontSize: 12),
-                  prefixIcon: const Icon(Icons.search, size: 18),
+                  prefixIcon: const Icon(Icons.search, size: 16),
+                  prefixIconConstraints: const BoxConstraints(
+                    minWidth: 32,
+                    minHeight: 24,
+                  ),
                   suffixIcon: _searchQuery.isNotEmpty
                       ? IconButton(
-                          icon: const Icon(Icons.clear, size: 16),
+                          icon: const Icon(Icons.clear, size: 14),
+                          padding: EdgeInsets.zero,
+                          constraints: const BoxConstraints(
+                            minWidth: 28,
+                            minHeight: 28,
+                          ),
                           onPressed: () => _searchController.clear(),
                         )
                       : null,
+                  suffixIconConstraints: const BoxConstraints(
+                    minWidth: 28,
+                    minHeight: 28,
+                  ),
                   isDense: true,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 8),
+                  contentPadding: const EdgeInsets.symmetric(
+                    vertical: 4,
+                    horizontal: 4,
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(8),
                   ),
@@ -162,8 +205,9 @@ class _CategoryListState extends State<CategoryList> {
                             return _CategoryRow(
                               entry: entry,
                               isSelected: entry.name == selected,
-                              onTap: () =>
-                                  context.read<AppState>().setCategory(entry.name),
+                              onTap: () => context.read<AppState>().setCategory(
+                                entry.name,
+                              ),
                             );
                           },
                         ),
@@ -235,8 +279,7 @@ class _CategoryRow extends StatelessWidget {
                 '${entry.name} (${entry.speciesCount})',
                 style: TextStyle(
                   fontSize: 12,
-                  fontWeight:
-                      isSelected ? FontWeight.bold : FontWeight.normal,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                   color: isSelected ? Colors.blue[700] : Colors.black87,
                 ),
                 maxLines: 2,

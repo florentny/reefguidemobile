@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../models/species.dart';
+import '../models/taxonomy_node.dart';
 import '../providers/app_state.dart';
 import '../services/data_service.dart';
 import '../widgets/photo_carousel.dart';
@@ -12,8 +13,9 @@ class SpeciesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Watch currentSpeciesId so the screen updates on prev/next navigation
-    final speciesId = context.watch<AppState>().currentSpeciesId;
+    final appState = context.watch<AppState>();
+    final speciesId = appState.currentSpeciesId;
+    final region = appState.selectedRegion;
 
     if (speciesId == null) {
       // Should not normally happen; pop defensively
@@ -23,8 +25,13 @@ class SpeciesScreen extends StatelessWidget {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    return FutureBuilder<List<Species>>(
-      future: DataService.instance.getAllSpecies(),
+    final future = Future.wait<dynamic>([
+      DataService.instance.getAllSpecies(),
+      DataService.instance.getTaxonomy(region),
+    ]);
+
+    return FutureBuilder<List<dynamic>>(
+      future: future,
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(
@@ -33,7 +40,9 @@ class SpeciesScreen extends StatelessWidget {
           );
         }
 
-        final allSpecies = snapshot.data ?? [];
+        final allSpecies = snapshot.data?[0] as List<Species>? ?? [];
+        final taxonomy = snapshot.data?[1] as TaxonomyNode?;
+
         Species? species;
         for (final s in allSpecies) {
           if (s.id == speciesId) {
@@ -49,7 +58,24 @@ class SpeciesScreen extends StatelessWidget {
           );
         }
 
-        return _SpeciesDetail(species: species);
+        // Find the deepest taxonomy node with a category set.
+        String? lowestCategory;
+        if (taxonomy != null) {
+          final path = taxonomy.pathToSpecies(speciesId);
+          if (path != null) {
+            for (final node in path.reversed) {
+              if (node.category != null && node.category!.isNotEmpty) {
+                lowestCategory = node.category;
+                break;
+              }
+            }
+          }
+        }
+
+        return _SpeciesDetail(
+          species: species,
+          lowestTaxonomyCategory: lowestCategory,
+        );
       },
     );
   }
@@ -96,8 +122,9 @@ class SpeciesScreen extends StatelessWidget {
 
 class _SpeciesDetail extends StatelessWidget {
   final Species species;
+  final String? lowestTaxonomyCategory;
 
-  const _SpeciesDetail({required this.species});
+  const _SpeciesDetail({required this.species, this.lowestTaxonomyCategory});
 
   @override
   Widget build(BuildContext context) {
@@ -138,7 +165,17 @@ class _SpeciesDetail extends StatelessWidget {
           Navigator.of(context).pop();
         },
       ),
-      title: null,
+      centerTitle: false,
+      title: lowestTaxonomyCategory != null
+          ? Text(
+              lowestTaxonomyCategory!,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w500,
+                color: Colors.white,
+              ),
+            )
+          : null,
       actions: [
         Consumer<AppState>(
           builder: (ctx, state, child) => _NavButton(
@@ -173,7 +210,7 @@ class _NameHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 4),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -184,17 +221,20 @@ class _NameHeader extends StatelessWidget {
                 fontSize: 18,
                 color: Colors.teal[700],
                 fontWeight: FontWeight.w600,
+                fontStyle: species.name == species.sciName
+                    ? FontStyle.italic
+                    : FontStyle.normal,
               ),
             ),
-          if (species.name.isNotEmpty) const SizedBox(height: 2),
-          Text(
-            species.sciName,
-            style: const TextStyle(
-              fontSize: 13,
-              fontStyle: FontStyle.italic,
-              color: Colors.black87,
+          if (species.sciName.isNotEmpty && species.sciName != species.name)
+            Text(
+              species.sciName,
+              style: const TextStyle(
+                fontSize: 13,
+                fontStyle: FontStyle.italic,
+                color: Colors.black87,
+              ),
             ),
-          ),
         ],
       ),
     );
@@ -265,7 +305,7 @@ class _DetailRow extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 6),
       child: RichText(
         text: TextSpan(
-          style: const TextStyle(fontSize: 13, color: Colors.black87),
+          style: const TextStyle(fontSize: 14, color: Colors.black87),
           children: [
             TextSpan(
               text: '$label: ',

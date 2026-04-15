@@ -78,7 +78,7 @@ class _TaxonomyPathList extends StatelessWidget {
     // Skip index 0 (root "Biota" node) — start from the first meaningful rank.
     for (var i = 1; i < path.length; i++) {
       final node = path[i];
-      final indent = (i - 1) * 10.0;
+      final indent = (i - 1) * 5.0;
       final prefix = i == 1 ? '' : '\u2514'; // └
 
       items.add(
@@ -87,7 +87,7 @@ class _TaxonomyPathList extends StatelessWidget {
           child: RichText(
             text: TextSpan(
               style: const TextStyle(
-                fontSize: 12,
+                fontSize: 13,
                 color: Colors.black87,
                 fontFamily: 'monospace',
               ),
@@ -104,12 +104,12 @@ class _TaxonomyPathList extends StatelessWidget {
                 if (node.rank.isNotEmpty)
                   TextSpan(
                     text: ' (${node.rank})',
-                    style: const TextStyle(fontSize: 11, color: Colors.grey),
+                    style: const TextStyle(fontSize: 12, color: Colors.grey),
                   ),
                 if (node.category != null && node.category!.isNotEmpty)
                   TextSpan(
                     text: '  ${node.category}',
-                    style: TextStyle(fontSize: 11, color: Colors.blue[700]),
+                    style: TextStyle(fontSize: 12, color: Colors.blue[700]),
                   ),
               ],
             ),
@@ -119,7 +119,7 @@ class _TaxonomyPathList extends StatelessWidget {
     }
 
     // Add the species leaf entry, one level deeper than the last path node
-    final leafIndent = (path.length - 1) * 10.0;
+    final leafIndent = (path.length - 1) * 5.0;
     // Find the SpeciesRef in the last path node
     final lastNode = path.last;
     final speciesRef = lastNode.species
@@ -132,7 +132,7 @@ class _TaxonomyPathList extends StatelessWidget {
           padding: EdgeInsets.only(left: leafIndent, bottom: 2),
           child: RichText(
             text: TextSpan(
-              style: const TextStyle(fontSize: 12),
+              style: const TextStyle(fontSize: 13),
               children: [
                 TextSpan(
                   text: '\u2514 ',
@@ -147,6 +147,7 @@ class _TaxonomyPathList extends StatelessWidget {
                       : speciesRef.name,
                   style: TextStyle(
                     fontStyle: FontStyle.italic,
+                    fontWeight: FontWeight.w600,
                     color: Colors.teal[700],
                   ),
                 ),

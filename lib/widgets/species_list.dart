@@ -134,6 +134,9 @@ class _FamilyHeader extends StatelessWidget {
         ? effectiveCategory
         : null;
 
+    // Genus group category overrides the title when all species share one.
+    final String? title = group.genusGroupCategory ?? categoryAbove;
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       color: Colors.blue[700],
@@ -142,15 +145,14 @@ class _FamilyHeader extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (categoryAbove != null)
+          if (title != null)
             Padding(
               padding: const EdgeInsets.only(bottom: 4),
               child: Text(
-                categoryAbove,
+                title,
                 style: TextStyle(
                   fontSize: 13,
                   color: Colors.white.withValues(alpha: 1.0),
-                  //fontWeight: FontWeight.normal,
                   fontWeight: FontWeight.w600,
                 ),
               ),
