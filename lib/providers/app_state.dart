@@ -1,5 +1,15 @@
 import 'package:flutter/foundation.dart';
 
+const List<String> regionNames = [
+  'Worldwide',
+  'Caribbean',
+  'Indo-Pacific',
+  'South Florida',
+  'Hawaii',
+  'Eastern Pacific',
+  'French Polynesia',
+];
+
 class AppState extends ChangeNotifier {
   int selectedRegion = 0; // 0 = Worldwide
   String selectedSuperCat = 'Fish';

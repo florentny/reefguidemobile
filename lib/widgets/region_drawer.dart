@@ -3,15 +3,6 @@ import 'package:provider/provider.dart';
 
 import '../providers/app_state.dart';
 
-const List<String> _regionNames = [
-  'Worldwide',
-  'Caribbean',
-  'Pacific',
-  'South Florida',
-  'Hawaii',
-  'Eastern Pacific',
-  'French Polynesia',
-];
 
 class RegionDrawer extends StatelessWidget {
   const RegionDrawer({super.key});
@@ -26,30 +17,28 @@ class RegionDrawer extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 20,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
               child: Text(
                 'Region',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      color: Colors.blue[700],
-                      fontWeight: FontWeight.bold,
-                    ),
+                  color: Colors.blue[700],
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
             const Divider(height: 1),
             Expanded(
               child: ListView.builder(
-                itemCount: _regionNames.length,
+                itemCount: regionNames.length,
                 itemBuilder: (context, index) {
                   final isSelected = appState.selectedRegion == index;
                   return ListTile(
                     title: Text(
-                      _regionNames[index],
+                      regionNames[index],
                       style: TextStyle(
-                        fontWeight:
-                            isSelected ? FontWeight.bold : FontWeight.normal,
+                        fontWeight: isSelected
+                            ? FontWeight.bold
+                            : FontWeight.normal,
                         color: isSelected ? Colors.blue[700] : null,
                       ),
                     ),

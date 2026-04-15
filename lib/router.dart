@@ -6,6 +6,7 @@ import 'providers/app_state.dart';
 import 'screens/home_screen.dart';
 import 'screens/info_screen.dart';
 import 'screens/main_screen.dart';
+import 'screens/search_screen.dart';
 import 'screens/species_screen.dart';
 
 final appRouter = GoRouter(
@@ -19,6 +20,24 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/info',
       builder: (context, state) => const InfoScreen(),
+    ),
+    GoRoute(
+      path: '/search',
+      builder: (context, state) => const SearchScreen(),
+      routes: [
+        GoRoute(
+          path: 'species/:id',
+          builder: (context, state) {
+            final id = state.pathParameters['id']!;
+            return _StateInitializer(
+              region: 0,
+              supercat: 'Fish',
+              speciesId: id,
+              child: const SpeciesScreen(),
+            );
+          },
+        ),
+      ],
     ),
     GoRoute(
       path: '/browse',

@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:go_router/go_router.dart';
-
 import '../providers/app_state.dart';
+import '../widgets/app_drawer.dart';
 import '../widgets/category_list.dart';
 import '../widgets/species_list.dart';
 
@@ -16,15 +15,6 @@ const List<String> _superCats = [
   'Mammals',
 ];
 
-const List<String> _regionNames = [
-  'Worldwide',
-  'Caribbean',
-  'Pacific',
-  'South Florida',
-  'Hawaii',
-  'Eastern Pacific',
-  'French Polynesia',
-];
 
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
@@ -33,7 +23,7 @@ class MainScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: _ReefAppBar(),
-      drawer: const _AppDrawer(),
+      drawer: const AppDrawer(),
       body: const _MainBody(),
     );
   }
@@ -79,11 +69,11 @@ class _RegionDropdown extends StatelessWidget {
           fontWeight: FontWeight.w600,
         ),
         alignment: AlignmentDirectional.centerEnd,
-        items: List.generate(_regionNames.length, (i) {
+        items: List.generate(regionNames.length, (i) {
           return DropdownMenuItem<int>(
             alignment: AlignmentDirectional.centerEnd,
             value: i,
-            child: Text(_regionNames[i], textAlign: TextAlign.right),
+            child: Text(regionNames[i], textAlign: TextAlign.right),
           );
         }),
         onChanged: (value) {
@@ -126,57 +116,6 @@ class _SuperCatDropdown extends StatelessWidget {
             context.read<AppState>().setSuperCat(value);
           }
         },
-      ),
-    );
-  }
-}
-
-// -----------------------------------------------------------------------------
-// Drawer
-// -----------------------------------------------------------------------------
-
-class _AppDrawer extends StatelessWidget {
-  const _AppDrawer();
-
-  @override
-  Widget build(BuildContext context) {
-    return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          DrawerHeader(
-            decoration: BoxDecoration(color: Colors.blue[700]),
-            child: const Text(
-              'reefguide.org',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          ListTile(
-            leading: const Icon(Icons.home_outlined),
-            title: const Text('Home'),
-            onTap: () {
-              Navigator.pop(context); // close drawer
-              context.go('/');
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.mail_outline),
-            title: const Text('Contact'),
-            onTap: () => Navigator.pop(context),
-          ),
-          ListTile(
-            leading: const Icon(Icons.info_outline),
-            title: const Text('About'),
-            onTap: () {
-              Navigator.pop(context); // close drawer
-              context.push('/info');
-            },
-          ),
-        ],
       ),
     );
   }
