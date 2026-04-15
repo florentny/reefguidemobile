@@ -7,15 +7,7 @@ import '../models/taxonomy_node.dart';
 import '../providers/app_state.dart';
 import '../services/data_service.dart';
 
-const List<String> _superCats = [
-  'Fish',
-  'Invertebrates',
-  'Sponges',
-  'Corals',
-  'Algae',
-  'Mammals',
-];
-
+const List<String> _superCats = ['Fish', 'Invertebrates', 'Sponges', 'Corals', 'Algae', 'Mammals'];
 
 enum _SortMode { commonName, sciName }
 
@@ -56,12 +48,7 @@ class _TaxInfo {
   final String? familyName;
   final String? orderName;
   final String? categoryLabel;
-  const _TaxInfo({
-    required this.superCat,
-    this.familyName,
-    this.orderName,
-    this.categoryLabel,
-  });
+  const _TaxInfo({required this.superCat, this.familyName, this.orderName, this.categoryLabel});
 }
 
 class _SearchResult {
@@ -69,12 +56,7 @@ class _SearchResult {
   final String? familyName;
   final String? orderName;
   final String? categoryLabel;
-  const _SearchResult({
-    required this.species,
-    this.familyName,
-    this.orderName,
-    this.categoryLabel,
-  });
+  const _SearchResult({required this.species, this.familyName, this.orderName, this.categoryLabel});
 }
 
 class SearchScreen extends StatefulWidget {
@@ -143,9 +125,7 @@ class _SearchScreenState extends State<SearchScreen> {
   // Returns the text used as the sort/index key for a result.
   String _primaryKey(_SearchResult r) {
     if (_sortMode == _SortMode.sciName) {
-      return r.species.sciName.isNotEmpty
-          ? r.species.sciName
-          : (r.familyName ?? r.orderName ?? r.species.name);
+      return r.species.sciName.isNotEmpty ? r.species.sciName : (r.familyName ?? r.orderName ?? r.species.name);
     }
     return r.species.name;
   }
@@ -197,12 +177,7 @@ class _SearchScreenState extends State<SearchScreen> {
       }
       if (node.category != null) category = node.category;
       for (final ref in node.species) {
-        map[ref.id] = _TaxInfo(
-          superCat: ref.superCat,
-          familyName: family,
-          orderName: order,
-          categoryLabel: category,
-        );
+        map[ref.id] = _TaxInfo(superCat: ref.superCat, familyName: family, orderName: order, categoryLabel: category);
       }
       for (final child in node.children) {
         walk(child, order, family, category);
@@ -234,7 +209,8 @@ class _SearchScreenState extends State<SearchScreen> {
       if (info == null || info.superCat != superCat) continue;
       if (q.isNotEmpty &&
           !s.name.toLowerCase().contains(q) &&
-          !s.sciName.toLowerCase().contains(q)) {
+          !s.sciName.toLowerCase().contains(q) &&
+          !(info.categoryLabel?.toLowerCase().contains(q) ?? false)) {
         continue;
       }
       results.add(
@@ -251,12 +227,8 @@ class _SearchScreenState extends State<SearchScreen> {
         return a.species.name.compareTo(b.species.name);
       }
       // Scientific name sort: fall back to family → order when sciName is empty.
-      final aKey = a.species.sciName.isNotEmpty
-          ? a.species.sciName
-          : (a.familyName ?? a.orderName ?? a.species.name);
-      final bKey = b.species.sciName.isNotEmpty
-          ? b.species.sciName
-          : (b.familyName ?? b.orderName ?? b.species.name);
+      final aKey = a.species.sciName.isNotEmpty ? a.species.sciName : (a.familyName ?? a.orderName ?? a.species.name);
+      final bKey = b.species.sciName.isNotEmpty ? b.species.sciName : (b.familyName ?? b.orderName ?? b.species.name);
       return aKey.compareTo(bKey);
     });
     return results;
@@ -290,19 +262,11 @@ class _SearchScreenState extends State<SearchScreen> {
                       hintText: 'Common or scientific name…',
                       prefixIcon: const Icon(Icons.search, size: 20),
                       suffixIcon: _query.isNotEmpty
-                          ? IconButton(
-                              icon: const Icon(Icons.clear, size: 18),
-                              onPressed: _clearQuery,
-                            )
+                          ? IconButton(icon: const Icon(Icons.clear, size: 18), onPressed: _clearQuery)
                           : null,
                       isDense: true,
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 10,
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(18),
-                      ),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(18)),
                     ),
                     onChanged: _onQueryChanged,
                   ),
@@ -310,18 +274,11 @@ class _SearchScreenState extends State<SearchScreen> {
                 const SizedBox(width: 8),
                 SegmentedButton<_SortMode>(
                   segments: const [
-                    ButtonSegment(
-                      value: _SortMode.commonName,
-                      label: Text('Common'),
-                    ),
-                    ButtonSegment(
-                      value: _SortMode.sciName,
-                      label: Text('Scientific'),
-                    ),
+                    ButtonSegment(value: _SortMode.commonName, label: Text('Common')),
+                    ButtonSegment(value: _SortMode.sciName, label: Text('Scientific')),
                   ],
                   selected: {_sortMode},
-                  onSelectionChanged: (selection) =>
-                      setState(() => _sortMode = selection.first),
+                  onSelectionChanged: (selection) => setState(() => _sortMode = selection.first),
                   style: SegmentedButton.styleFrom(
                     textStyle: const TextStyle(fontSize: 12),
                     padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -376,17 +333,14 @@ class _SearchScreenState extends State<SearchScreen> {
                                 query: _query,
                                 onTap: () {
                                   appState.openSpecies(result.species.id, ids);
-                                  context.push(
-                                    '/search/species/${result.species.id}',
-                                  );
+                                  context.push('/search/species/${result.species.id}');
                                 },
                               );
                             },
                           ),
                           _AlphabetSidebar(
                             availableLetters: letterIndexMap.keys.toSet(),
-                            onLetterTap: (letter) =>
-                                _scrollToLetter(letter, letterIndexMap),
+                            onLetterTap: (letter) => _scrollToLetter(letter, letterIndexMap),
                           ),
                         ],
                       );
@@ -416,10 +370,7 @@ class _SearchAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       backgroundColor: Colors.blue[700],
       foregroundColor: Colors.white,
-      leading: IconButton(
-        icon: const Icon(Icons.arrow_back),
-        onPressed: onBack,
-      ),
+      leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: onBack),
       title: const Row(
         mainAxisSize: MainAxisSize.min,
         children: [_RegionDropdown(), SizedBox(width: 16), _SuperCatDropdown()],
@@ -440,11 +391,7 @@ class _RegionDropdown extends StatelessWidget {
         value: appState.selectedRegion,
         icon: const Icon(Icons.keyboard_arrow_down, color: Colors.white),
         dropdownColor: Colors.blue[700],
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-        ),
+        style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
         alignment: AlignmentDirectional.centerEnd,
         items: List.generate(regionNames.length, (i) {
           return DropdownMenuItem<int>(
@@ -472,11 +419,7 @@ class _SuperCatDropdown extends StatelessWidget {
         value: appState.selectedSuperCat,
         icon: const Icon(Icons.keyboard_arrow_down, color: Colors.white),
         dropdownColor: Colors.blue[700],
-        style: const TextStyle(
-          color: Colors.white,
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-        ),
+        style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
         alignment: AlignmentDirectional.centerEnd,
         items: _superCats.map((cat) {
           return DropdownMenuItem<String>(
@@ -564,75 +507,69 @@ class _SearchSpeciesCard extends StatelessWidget {
 
     return InkWell(
       onTap: onTap,
-      child: Row(
-        children: [
-          SizedBox(
-            width: 80,
-            height: 80,
-            child: Image.asset(
-              'asset/pix/${species.id}$thumbId.jpg',
-              fit: BoxFit.cover,
-              errorBuilder: (context, error, stackTrace) => Container(
-                color: Colors.grey[200],
-                child: const Icon(
-                  Icons.camera_alt,
-                  color: Colors.grey,
-                  size: 32,
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          border: Border(bottom: BorderSide(color: Colors.grey[300]!, width: 1)),
+        ),
+        child: Row(
+          children: [
+            SizedBox(
+              width: 107,
+              height: 80,
+              child: Image.asset(
+                'asset/pix/${species.id}$thumbId.jpg',
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => Container(
+                  color: Colors.grey[200],
+                  child: const Icon(Icons.camera_alt, color: Colors.grey, size: 32),
                 ),
               ),
             ),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _HighlightText(
-                    text: primaryText,
-                    query: primaryHighlight ? query : '',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      fontStyle: primaryIsItalic
-                          ? FontStyle.italic
-                          : FontStyle.normal,
-                    ),
-                  ),
-                  if (secondaryText != null)
+            const SizedBox(width: 12),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
                     _HighlightText(
-                      text: secondaryText,
-                      query: secondaryHighlight ? query : '',
+                      text: primaryText,
+                      query: primaryHighlight ? query : '',
                       style: TextStyle(
-                        fontSize: 12,
-                        fontStyle: secondaryIsItalic
-                            ? FontStyle.italic
-                            : FontStyle.normal,
-                        color: Colors.black54,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        fontStyle: primaryIsItalic ? FontStyle.italic : FontStyle.normal,
                       ),
                     ),
-                  if (categoryLabel != null && categoryLabel!.isNotEmpty)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 2),
-                      child: Text(
-                        categoryLabel!,
-                        style: const TextStyle(
-                          fontSize: 11,
-                          color: Colors.blueGrey,
+                    if (secondaryText != null)
+                      _HighlightText(
+                        text: secondaryText,
+                        query: secondaryHighlight ? query : '',
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontStyle: secondaryIsItalic ? FontStyle.italic : FontStyle.normal,
+                          color: Colors.black54,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                ],
+                    if (categoryLabel != null && categoryLabel!.isNotEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 2),
+                        child: Text(
+                          categoryLabel!,
+                          style: const TextStyle(fontSize: 11, color: Colors.blueGrey),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                  ],
+                ),
               ),
             ),
-          ),
-          const Icon(Icons.chevron_right, color: Colors.black26, size: 20),
-          const SizedBox(width: 8),
-        ],
+            const Icon(Icons.chevron_right, color: Colors.black26, size: 20),
+            const SizedBox(width: 8),
+          ],
+        ),
       ),
     );
   }
@@ -647,50 +584,30 @@ class _HighlightText extends StatelessWidget {
   final String query;
   final TextStyle style;
 
-  const _HighlightText({
-    required this.text,
-    required this.query,
-    required this.style,
-  });
+  const _HighlightText({required this.text, required this.query, required this.style});
 
   @override
   Widget build(BuildContext context) {
     if (query.isEmpty) {
-      return Text(
-        text,
-        style: style,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      );
+      return Text(text, style: style, maxLines: 1, overflow: TextOverflow.ellipsis);
     }
 
     final lowerText = text.toLowerCase();
     final matchStart = lowerText.indexOf(query.toLowerCase());
 
     if (matchStart < 0) {
-      return Text(
-        text,
-        style: style,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-      );
+      return Text(text, style: style, maxLines: 1, overflow: TextOverflow.ellipsis);
     }
 
     final matchEnd = matchStart + query.length;
-    final boldStyle = style.copyWith(
-      fontWeight: FontWeight.bold,
-      color: Colors.teal[700],
-    );
+    final boldStyle = style.copyWith(fontWeight: FontWeight.bold, color: Colors.teal[700]);
 
     return Text.rich(
       TextSpan(
         style: style,
         children: [
           if (matchStart > 0) TextSpan(text: text.substring(0, matchStart)),
-          TextSpan(
-            text: text.substring(matchStart, matchEnd),
-            style: boldStyle,
-          ),
+          TextSpan(text: text.substring(matchStart, matchEnd), style: boldStyle),
           if (matchEnd < text.length) TextSpan(text: text.substring(matchEnd)),
         ],
       ),
@@ -708,10 +625,7 @@ class _AlphabetSidebar extends StatelessWidget {
   final Set<String> availableLetters;
   final void Function(String) onLetterTap;
 
-  const _AlphabetSidebar({
-    required this.availableLetters,
-    required this.onLetterTap,
-  });
+  const _AlphabetSidebar({required this.availableLetters, required this.onLetterTap});
 
   @override
   Widget build(BuildContext context) {

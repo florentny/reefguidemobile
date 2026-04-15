@@ -276,7 +276,7 @@ class _DetailsSection extends StatelessWidget {
                       text: 'Note: ',
                       style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    TextSpan(text: species.note),
+                    ..._parseItalicSpans(species.note),
                   ],
                 ),
               ),
@@ -285,6 +285,28 @@ class _DetailsSection extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Splits [text] on `<i>…</i>` tags and returns a list of [TextSpan]s,
+/// rendering tagged segments in italic.
+List<TextSpan> _parseItalicSpans(String text) {
+  final spans = <TextSpan>[];
+  final re = RegExp(r'<i>(.*?)</i>', dotAll: true);
+  int cursor = 0;
+  for (final match in re.allMatches(text)) {
+    if (match.start > cursor) {
+      spans.add(TextSpan(text: text.substring(cursor, match.start)));
+    }
+    spans.add(TextSpan(
+      text: match.group(1),
+      style: const TextStyle(fontStyle: FontStyle.italic),
+    ));
+    cursor = match.end;
+  }
+  if (cursor < text.length) {
+    spans.add(TextSpan(text: text.substring(cursor)));
+  }
+  return spans;
 }
 
 class _DetailRow extends StatelessWidget {

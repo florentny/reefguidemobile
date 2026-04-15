@@ -4,8 +4,8 @@ import 'package:provider/provider.dart';
 import '../providers/app_state.dart';
 import '../services/data_service.dart';
 
-// Each category row: image 60 + vertical padding 6+6 = 72px fixed height.
-const double _kItemHeight = 72.0;
+// Each category row: image 60 tall (80 wide, 4:3) + vertical padding 6+6 = 72px fixed height.
+const double _kItemHeight = 61.0;
 
 const List<String> _allLetters = [
   'A',
@@ -53,13 +53,10 @@ class _CategoryListState extends State<CategoryList> {
   String _searchQuery = '';
 
   Future<List<CategoryEntry>> _getCategories(int region, String superCat) {
-    if (_categoriesFuture == null ||
-        _lastRegion != region ||
-        _lastSuperCat != superCat) {
+    if (_categoriesFuture == null || _lastRegion != region || _lastSuperCat != superCat) {
       _lastRegion = region;
       _lastSuperCat = superCat;
-      _categoriesFuture = DataService.instance
-          .getCategoriesForRegionAndSuperCat(region, superCat);
+      _categoriesFuture = DataService.instance.getCategoriesForRegionAndSuperCat(region, superCat);
     }
     return _categoriesFuture!;
   }
@@ -128,23 +125,13 @@ class _CategoryListState extends State<CategoryList> {
         final categories = snapshot.data ?? [];
         if (categories.isEmpty) {
           return const Center(
-            child: Text(
-              'No categories',
-              style: TextStyle(fontSize: 12),
-              textAlign: TextAlign.center,
-            ),
+            child: Text('No categories', style: TextStyle(fontSize: 12), textAlign: TextAlign.center),
           );
         }
 
         final filtered = _searchQuery.isEmpty
             ? categories
-            : categories
-                  .where(
-                    (e) => e.name.toLowerCase().contains(
-                      _searchQuery.toLowerCase(),
-                    ),
-                  )
-                  .toList();
+            : categories.where((e) => e.name.toLowerCase().contains(_searchQuery.toLowerCase())).toList();
 
         final letterIndexMap = _computeLetterIndex(filtered);
 
@@ -158,42 +145,26 @@ class _CategoryListState extends State<CategoryList> {
                   hintText: 'Search…',
                   hintStyle: const TextStyle(fontSize: 12),
                   prefixIcon: const Icon(Icons.search, size: 16),
-                  prefixIconConstraints: const BoxConstraints(
-                    minWidth: 32,
-                    minHeight: 24,
-                  ),
+                  prefixIconConstraints: const BoxConstraints(minWidth: 32, minHeight: 24),
                   suffixIcon: _searchQuery.isNotEmpty
                       ? IconButton(
                           icon: const Icon(Icons.clear, size: 14),
                           padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(
-                            minWidth: 28,
-                            minHeight: 28,
-                          ),
+                          constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
                           onPressed: () => _searchController.clear(),
                         )
                       : null,
-                  suffixIconConstraints: const BoxConstraints(
-                    minWidth: 28,
-                    minHeight: 28,
-                  ),
+                  suffixIconConstraints: const BoxConstraints(minWidth: 28, minHeight: 28),
                   isDense: true,
-                  contentPadding: const EdgeInsets.symmetric(
-                    vertical: 4,
-                    horizontal: 4,
-                  ),
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
                 ),
                 style: const TextStyle(fontSize: 12),
               ),
             ),
             Expanded(
               child: filtered.isEmpty
-                  ? const Center(
-                      child: Text('No results', style: TextStyle(fontSize: 12)),
-                    )
+                  ? const Center(child: Text('No results', style: TextStyle(fontSize: 12)))
                   : Stack(
                       children: [
                         ListView.builder(
@@ -205,16 +176,13 @@ class _CategoryListState extends State<CategoryList> {
                             return _CategoryRow(
                               entry: entry,
                               isSelected: entry.name == selected,
-                              onTap: () => context.read<AppState>().setCategory(
-                                entry.name,
-                              ),
+                              onTap: () => context.read<AppState>().setCategory(entry.name),
                             );
                           },
                         ),
                         _AlphabetSidebar(
                           availableLetters: letterIndexMap.keys.toSet(),
-                          onLetterTap: (letter) =>
-                              _scrollToLetter(letter, letterIndexMap),
+                          onLetterTap: (letter) => _scrollToLetter(letter, letterIndexMap),
                         ),
                       ],
                     ),
@@ -235,11 +203,7 @@ class _CategoryRow extends StatelessWidget {
   final bool isSelected;
   final VoidCallback onTap;
 
-  const _CategoryRow({
-    required this.entry,
-    required this.isSelected,
-    required this.onTap,
-  });
+  const _CategoryRow({required this.entry, required this.isSelected, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -250,23 +214,20 @@ class _CategoryRow extends StatelessWidget {
         decoration: isSelected
             ? BoxDecoration(
                 color: Colors.blue[50],
-                border: Border(
-                  left: BorderSide(color: Colors.blue[700]!, width: 3),
-                ),
+                border: Border(left: BorderSide(color: Colors.blue[700]!, width: 3)),
               )
             : null,
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
         child: Row(
           children: [
             ClipRRect(
-              borderRadius: BorderRadius.circular(4),
               child: Image.asset(
                 'asset/pix/${entry.firstSpeciesId}${entry.firstThumb}.jpg',
-                width: 60,
+                width: 80,
                 height: 60,
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) => Container(
-                  width: 60,
+                  width: 80,
                   height: 60,
                   color: Colors.grey[200],
                   child: const Icon(Icons.image, color: Colors.grey, size: 24),
@@ -301,10 +262,7 @@ class _AlphabetSidebar extends StatelessWidget {
   final Set<String> availableLetters;
   final void Function(String) onLetterTap;
 
-  const _AlphabetSidebar({
-    required this.availableLetters,
-    required this.onLetterTap,
-  });
+  const _AlphabetSidebar({required this.availableLetters, required this.onLetterTap});
 
   @override
   Widget build(BuildContext context) {

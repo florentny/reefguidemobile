@@ -65,7 +65,7 @@ class _RegionDropdown extends StatelessWidget {
         dropdownColor: Colors.blue[700],
         style: const TextStyle(
           color: Colors.white,
-          fontSize: 16,
+          fontSize: 14,
           fontWeight: FontWeight.w600,
         ),
         alignment: AlignmentDirectional.centerEnd,
@@ -100,7 +100,7 @@ class _SuperCatDropdown extends StatelessWidget {
         dropdownColor: Colors.blue[700],
         style: const TextStyle(
           color: Colors.white,
-          fontSize: 16,
+          fontSize: 14,
           fontWeight: FontWeight.w600,
         ),
         alignment: AlignmentDirectional.centerEnd,

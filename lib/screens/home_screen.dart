@@ -31,7 +31,7 @@ class HomeScreen extends StatelessWidget {
         child: Column(
           children: [
             const Padding(
-              padding: EdgeInsets.fromLTRB(24, 8, 24, 24),
+              padding: EdgeInsets.fromLTRB(24, 2, 24, 24),
               child: Text(
                 "Florent's guide to the marine life of the tropical reefs",
                 textAlign: TextAlign.center,
@@ -43,24 +43,24 @@ class HomeScreen extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Row(
                 children: [
                   Expanded(
                     child: ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(15),
                       child: Image.asset(
                         'asset/img/photo1.jpg',
                         fit: BoxFit.cover,
                       ),
                     ),
                   ),
-                  const SizedBox(width: 16),
+                  const SizedBox(width: 14),
                   Expanded(
                     child: ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(15),
                       child: Image.asset(
                         'asset/img/photo2.jpg',
                         fit: BoxFit.cover,
@@ -70,9 +70,9 @@ class HomeScreen extends StatelessWidget {
                 ],
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 10),
             const _SelectorsRow(),
-            const SizedBox(height: 24),
+            const SizedBox(height: 16),
             ElevatedButton(
               onPressed: () {
                 final s = context.read<AppState>();
@@ -105,7 +105,7 @@ class HomeScreen extends StatelessWidget {
                 backgroundColor: Colors.white,
                 foregroundColor: Colors.blue[900],
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 40,
+                  horizontal: 30,
                   vertical: 16,
                 ),
                 shape: RoundedRectangleBorder(
@@ -125,10 +125,7 @@ class HomeScreen extends StatelessWidget {
               padding: EdgeInsets.only(bottom: 12),
               child: Text(
                 'Copyright Florent Charpin - https://reefguide.org',
-                style: TextStyle(
-                  color: Colors.white38,
-                  fontSize: 10,
-                ),
+                style: TextStyle(color: Colors.white38, fontSize: 10),
               ),
             ),
           ],
@@ -157,7 +154,7 @@ class _SelectorsRow extends StatelessWidget {
                 onChanged: (v) => context.read<AppState>().setSuperCat(v),
               ),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: 14),
             Expanded(
               child: _RadioColumn<int>(
                 values: List.generate(regionNames.length, (i) => i),

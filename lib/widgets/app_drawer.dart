@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
@@ -40,7 +41,13 @@ class AppDrawer extends StatelessWidget {
           ListTile(
             leading: const Icon(Icons.mail_outline),
             title: const Text('Contact'),
-            onTap: () => Navigator.pop(context),
+            onTap: () async {
+              Navigator.pop(context);
+              final uri = Uri(scheme: 'mailto', path: 'mobile@reefguide.org');
+              if (await canLaunchUrl(uri)) {
+                await launchUrl(uri);
+              }
+            },
           ),
           ListTile(
             leading: const Icon(Icons.info_outline),
