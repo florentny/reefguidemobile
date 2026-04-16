@@ -143,7 +143,7 @@ class _SelectorsRow extends StatelessWidget {
             Expanded(
               child: _RadioColumn<String>(
                 values: AppState.superCats,
-                labelOf: (v) => v,
+                labelOf: AppState.superCatLabel,
                 selected: context.watch<AppState>().selectedSuperCat,
                 onChanged: (v) => context.read<AppState>().setSuperCat(v),
               ),

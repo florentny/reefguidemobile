@@ -1,8 +1,8 @@
 import 'package:flutter/foundation.dart';
 
 const List<String> regionNames = [
-  'Worldwide',
-  'Caribbean',
+  'All Regions',
+  'Caribbean and Florida',
   'Indo-Pacific',
   'South Florida',
   'Hawaii',
@@ -11,14 +11,10 @@ const List<String> regionNames = [
 ];
 
 class AppState extends ChangeNotifier {
-  static const List<String> superCats = [
-    'Fish',
-    'Invertebrates',
-    'Sponges',
-    'Corals',
-    'Algae',
-    'Mammals',
-  ];
+  static const List<String> superCats = ['Fish', 'Invertebrates', 'Sponges', 'Corals', 'Algae', 'Mammals'];
+
+  static String superCatLabel(String superCat) =>
+      superCat == 'Mammals' ? 'Mammals, Turtles & Reptiles' : superCat;
 
   int selectedRegion = 0; // 0 = Worldwide
   String selectedSuperCat = 'Fish';
@@ -34,9 +30,7 @@ class AppState extends ChangeNotifier {
 
   bool get hasPrevious => _currentSpeciesIndex > 0;
 
-  bool get hasNext =>
-      _currentSpeciesList.isNotEmpty &&
-      _currentSpeciesIndex < _currentSpeciesList.length - 1;
+  bool get hasNext => _currentSpeciesList.isNotEmpty && _currentSpeciesIndex < _currentSpeciesList.length - 1;
 
   // -------------------------------------------------------------------------
   // Setters / actions

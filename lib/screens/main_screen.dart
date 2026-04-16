@@ -63,7 +63,7 @@ class _SuperCatDropdown extends StatelessWidget {
     return AppBarDropdown<String>(
       value: appState.selectedSuperCat,
       items: AppState.superCats,
-      labelOf: (v) => v,
+      labelOf: AppState.superCatLabel,
       onChanged: (v) => context.read<AppState>().setSuperCat(v),
     );
   }
