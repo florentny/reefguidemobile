@@ -11,8 +11,47 @@ import '../services/data_service.dart';
 import '../widgets/photo_carousel.dart';
 import '../widgets/taxonomy_tree_widget.dart';
 
-class SpeciesScreen extends StatelessWidget {
+class SpeciesScreen extends StatefulWidget {
   const SpeciesScreen({super.key});
+
+  @override
+  State<SpeciesScreen> createState() => _SpeciesScreenState();
+}
+
+class _SpeciesScreenState extends State<SpeciesScreen> {
+  Future<List<dynamic>>? _dataFuture;
+  int? _cachedRegion;
+
+  @override
+  void initState() {
+    super.initState();
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
+  }
+
+  @override
+  void dispose() {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+    super.dispose();
+  }
+
+  Future<List<dynamic>> _getDataFuture(int region) {
+    if (_dataFuture == null || _cachedRegion != region) {
+      _dataFuture = Future.wait<dynamic>([
+        DataService.instance.getAllSpecies(),
+        DataService.instance.getTaxonomy(region),
+      ]);
+      _cachedRegion = region;
+    }
+    return _dataFuture!;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -28,13 +67,8 @@ class SpeciesScreen extends StatelessWidget {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
 
-    final future = Future.wait<dynamic>([
-      DataService.instance.getAllSpecies(),
-      DataService.instance.getTaxonomy(region),
-    ]);
-
     return FutureBuilder<List<dynamic>>(
-      future: future,
+      future: _getDataFuture(region),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(
@@ -219,6 +253,20 @@ class _LandscapePhotoViewState extends State<_LandscapePhotoView> {
   void _onTransformChanged() {
     final zoomed = _transformController.value.getMaxScaleOnAxis() > 1.01;
     if (zoomed != _isZoomed) setState(() => _isZoomed = zoomed);
+  }
+
+  @override
+  void didUpdateWidget(_LandscapePhotoView oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.species.id != widget.species.id) {
+      _transformController.value = Matrix4.identity();
+      setState(() => _currentPage = 0);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _pageController.hasClients) {
+          _pageController.jumpToPage(0);
+        }
+      });
+    }
   }
 
   @override
