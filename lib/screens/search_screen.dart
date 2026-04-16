@@ -253,7 +253,7 @@ class _SearchScreenState extends State<SearchScreen> {
             child: TextField(
               controller: _controller,
               focusNode: _focusNode,
-              autofocus: true,
+              autofocus: false,
               decoration: InputDecoration(
                 hintText: 'Search by common or scientific name…',
                 prefixIcon: const Icon(Icons.search, size: 20),

@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
@@ -8,11 +9,16 @@ import 'screens/info_screen.dart';
 import 'screens/main_screen.dart';
 import 'screens/search_screen.dart';
 import 'screens/species_screen.dart';
+import 'screens/splash_screen.dart';
 
 final appRouter = GoRouter(
-  initialLocation: '/',
+  initialLocation: kIsWeb ? '/' : '/splash',
   debugLogDiagnostics: true, // logs every route change to the console
   routes: [
+    GoRoute(
+      path: '/splash',
+      builder: (context, state) => const SplashScreen(),
+    ),
     GoRoute(
       path: '/',
       builder: (context, state) => const HomeScreen(),

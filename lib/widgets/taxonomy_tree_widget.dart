@@ -44,7 +44,7 @@ class TaxonomyTreeWidget extends StatelessWidget {
         }
 
         return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -85,6 +85,8 @@ class _TaxonomyPathList extends StatelessWidget {
         Padding(
           padding: EdgeInsets.only(left: indent, bottom: 2),
           child: RichText(
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             text: TextSpan(
               style: const TextStyle(
                 fontSize: 13,
@@ -131,6 +133,8 @@ class _TaxonomyPathList extends StatelessWidget {
         Padding(
           padding: EdgeInsets.only(left: leafIndent, bottom: 2),
           child: RichText(
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             text: TextSpan(
               style: const TextStyle(fontSize: 13),
               children: [

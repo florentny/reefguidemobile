@@ -11,13 +11,14 @@ class RegionDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     final appState = context.watch<AppState>();
 
+    final topPadding = MediaQuery.of(context).padding.top;
+
     return Drawer(
-      child: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+              padding: EdgeInsets.fromLTRB(16, topPadding + 20, 16, 20),
               child: Text(
                 'Region',
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -55,8 +56,7 @@ class RegionDrawer extends StatelessWidget {
                 },
               ),
             ),
-          ],
-        ),
+        ],
       ),
     );
   }
