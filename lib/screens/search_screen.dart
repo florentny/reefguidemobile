@@ -8,7 +8,6 @@ import '../providers/app_state.dart';
 import '../services/data_service.dart';
 import '../widgets/appbar_dropdown.dart';
 
-
 enum _SortMode { commonName, sciName }
 
 const double _kItemHeight = 80.0;
@@ -248,58 +247,56 @@ class _SearchScreenState extends State<SearchScreen> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Search field + sort toggle
+          // Search field
           Padding(
             padding: const EdgeInsets.fromLTRB(8, 8, 12, 4),
+            child: TextField(
+              controller: _controller,
+              focusNode: _focusNode,
+              autofocus: true,
+              decoration: InputDecoration(
+                hintText: 'Search by common or scientific name…',
+                prefixIcon: const Icon(Icons.search, size: 20),
+                suffixIcon: _query.isNotEmpty
+                    ? IconButton(icon: const Icon(Icons.clear, size: 18), onPressed: _clearQuery)
+                    : null,
+                isDense: true,
+                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                border: OutlineInputBorder(borderRadius: BorderRadius.circular(18)),
+              ),
+              onChanged: _onQueryChanged,
+            ),
+          ),
+          // Count + sort toggle on the same row
+          Padding(
+            padding: const EdgeInsets.fromLTRB(14, 2, 12, 2),
             child: Row(
               children: [
-                Expanded(
-                  child: TextField(
-                    controller: _controller,
-                    focusNode: _focusNode,
-                    autofocus: true,
-                    decoration: InputDecoration(
-                      hintText: 'Common or scientific name…',
-                      prefixIcon: const Icon(Icons.search, size: 20),
-                      suffixIcon: _query.isNotEmpty
-                          ? IconButton(icon: const Icon(Icons.clear, size: 18), onPressed: _clearQuery)
-                          : null,
-                      isDense: true,
-                      contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(18)),
-                    ),
-                    onChanged: _onQueryChanged,
+                if (!loading)
+                  Text(
+                    _query.isEmpty
+                        ? '${filtered.length} species'
+                        : '${filtered.length} result${filtered.length == 1 ? '' : 's'}',
+                    style: const TextStyle(fontSize: 12, color: Colors.black45),
                   ),
-                ),
-                const SizedBox(width: 8),
+                const Spacer(),
                 SegmentedButton<_SortMode>(
                   segments: const [
-                    ButtonSegment(value: _SortMode.commonName, label: Text('Common')),
-                    ButtonSegment(value: _SortMode.sciName, label: Text('Scientific')),
+                    ButtonSegment(value: _SortMode.commonName, label: Text('Common name')),
+                    ButtonSegment(value: _SortMode.sciName, label: Text('Scientific name')),
                   ],
                   selected: {_sortMode},
                   onSelectionChanged: (selection) => setState(() => _sortMode = selection.first),
                   style: SegmentedButton.styleFrom(
                     textStyle: const TextStyle(fontSize: 12),
                     padding: const EdgeInsets.symmetric(horizontal: 8),
-                    minimumSize: const Size(0, 36),
+                    minimumSize: const Size(0, 32),
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                   ),
                 ),
               ],
             ),
           ),
-          // Count bar
-          if (!loading)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 2),
-              child: Text(
-                _query.isEmpty
-                    ? '${filtered.length} species'
-                    : '${filtered.length} result${filtered.length == 1 ? '' : 's'}',
-                style: const TextStyle(fontSize: 12, color: Colors.black45),
-              ),
-            ),
           const Divider(height: 8),
           // List
           Expanded(

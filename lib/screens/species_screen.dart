@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -120,7 +121,7 @@ class _SpeciesDetail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isLandscape = MediaQuery.of(context).orientation == Orientation.landscape;
+    final isLandscape = !kIsWeb && MediaQuery.of(context).orientation == Orientation.landscape;
 
     if (isLandscape) {
       return _LandscapePhotoView(species: species, lowestTaxonomyCategory: lowestTaxonomyCategory);
@@ -203,16 +204,27 @@ class _LandscapePhotoView extends StatefulWidget {
 class _LandscapePhotoViewState extends State<_LandscapePhotoView> {
   int _currentPage = 0;
   late final PageController _pageController;
+  late final TransformationController _transformController;
+  bool _isZoomed = false;
 
   @override
   void initState() {
     super.initState();
     _pageController = PageController();
+    _transformController = TransformationController();
+    _transformController.addListener(_onTransformChanged);
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+  }
+
+  void _onTransformChanged() {
+    final zoomed = _transformController.value.getMaxScaleOnAxis() > 1.01;
+    if (zoomed != _isZoomed) setState(() => _isZoomed = zoomed);
   }
 
   @override
   void dispose() {
+    _transformController.removeListener(_onTransformChanged);
+    _transformController.dispose();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     _pageController.dispose();
     super.dispose();
@@ -233,15 +245,24 @@ class _LandscapePhotoViewState extends State<_LandscapePhotoView> {
           else
             PageView.builder(
               controller: _pageController,
+              physics: _isZoomed ? const NeverScrollableScrollPhysics() : null,
               itemCount: photos.length,
-              onPageChanged: (page) => setState(() => _currentPage = page),
+              onPageChanged: (page) {
+                _transformController.value = Matrix4.identity();
+                setState(() => _currentPage = page);
+              },
               itemBuilder: (context, index) {
                 final photo = photos[index];
-                return Image.asset(
-                  'asset/pix/${widget.species.id}${photo.id}.jpg',
-                  fit: BoxFit.contain,
-                  errorBuilder: (context, error, stackTrace) =>
-                      const Center(child: Icon(Icons.camera_alt, color: Colors.white38, size: 64)),
+                return InteractiveViewer(
+                  transformationController: _transformController,
+                  minScale: 1.0,
+                  maxScale: 4.0,
+                  child: Image.asset(
+                    'asset/pix/${widget.species.id}${photo.id}.jpg',
+                    fit: BoxFit.contain,
+                    errorBuilder: (context, error, stackTrace) =>
+                        const Center(child: Icon(Icons.camera_alt, color: Colors.white38, size: 64)),
+                  ),
                 );
               },
             ),

@@ -15,11 +15,20 @@ class PhotoCarousel extends StatefulWidget {
 class _PhotoCarouselState extends State<PhotoCarousel> {
   int _currentPage = 0;
   late final PageController _pageController;
+  late final TransformationController _transformController;
+  bool _isZoomed = false;
 
   @override
   void initState() {
     super.initState();
     _pageController = PageController();
+    _transformController = TransformationController();
+    _transformController.addListener(_onTransformChanged);
+  }
+
+  void _onTransformChanged() {
+    final zoomed = _transformController.value.getMaxScaleOnAxis() > 1.01;
+    if (zoomed != _isZoomed) setState(() => _isZoomed = zoomed);
   }
 
   @override
@@ -31,11 +40,14 @@ class _PhotoCarouselState extends State<PhotoCarousel> {
     if (oldWidget.species.id != widget.species.id) {
       _currentPage = 0;
       _pageController.jumpToPage(0);
+      _transformController.value = Matrix4.identity();
     }
   }
 
   @override
   void dispose() {
+    _transformController.removeListener(_onTransformChanged);
+    _transformController.dispose();
     _pageController.dispose();
     super.dispose();
   }
@@ -57,21 +69,28 @@ class _PhotoCarouselState extends State<PhotoCarousel> {
               aspectRatio: 4 / 3,
               child: PageView.builder(
                 controller: _pageController,
+                physics: _isZoomed ? const NeverScrollableScrollPhysics() : null,
                 itemCount: photos.length,
                 onPageChanged: (page) {
+                  _transformController.value = Matrix4.identity();
                   setState(() => _currentPage = page);
                 },
                 itemBuilder: (context, index) {
                   final photo = photos[index];
-                  return Image.asset(
-                    'asset/pix/${widget.species.id}${photo.id}.jpg',
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) => Container(
-                      color: Colors.grey[200],
-                      child: const Icon(
-                        Icons.camera_alt,
-                        color: Colors.grey,
-                        size: 48,
+                  return InteractiveViewer(
+                    transformationController: _transformController,
+                    minScale: 1.0,
+                    maxScale: 4.0,
+                    child: Image.asset(
+                      'asset/pix/${widget.species.id}${photo.id}.jpg',
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => Container(
+                        color: Colors.grey[200],
+                        child: const Icon(
+                          Icons.camera_alt,
+                          color: Colors.grey,
+                          size: 48,
+                        ),
                       ),
                     ),
                   );
