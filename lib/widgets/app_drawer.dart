@@ -11,15 +11,12 @@ class AppDrawer extends StatelessWidget {
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
-          DrawerHeader(
-            decoration: BoxDecoration(color: Colors.blue[700]),
+          Container(
+            color: Colors.blue[700],
+            padding: const EdgeInsets.fromLTRB(16, 10, 16, 16),
             child: const Text(
-              'reefguide.org',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-              ),
+              'Florent\'s Reef Guide',
+              style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
             ),
           ),
           ListTile(
@@ -46,6 +43,17 @@ class AppDrawer extends StatelessWidget {
               final uri = Uri(scheme: 'mailto', path: 'mobile@reefguide.org');
               if (await canLaunchUrl(uri)) {
                 await launchUrl(uri);
+              }
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.computer_outlined),
+            title: const Text('Desktop Version'),
+            onTap: () async {
+              Navigator.pop(context);
+              final uri = Uri.parse('https://reefguide.org');
+              if (await canLaunchUrl(uri)) {
+                await launchUrl(uri, mode: LaunchMode.externalApplication);
               }
             },
           ),

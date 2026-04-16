@@ -4,38 +4,6 @@ import 'package:provider/provider.dart';
 import '../providers/app_state.dart';
 import '../services/data_service.dart';
 
-// Each category row: image 60 tall (80 wide, 4:3) + vertical padding 6+6 = 72px fixed height.
-const double _kItemHeight = 61.0;
-
-const List<String> _allLetters = [
-  'A',
-  'B',
-  'C',
-  'D',
-  'E',
-  'F',
-  'G',
-  'H',
-  'I',
-  'J',
-  'K',
-  'L',
-  'M',
-  'N',
-  'O',
-  'P',
-  'Q',
-  'R',
-  'S',
-  'T',
-  'U',
-  'V',
-  'W',
-  'X',
-  'Y',
-  'Z',
-  '#',
-];
 
 class CategoryList extends StatefulWidget {
   const CategoryList({super.key});
@@ -76,29 +44,6 @@ class _CategoryListState extends State<CategoryList> {
     super.dispose();
   }
 
-  /// Pure function — maps first letter → index in the sorted category list.
-  Map<String, int> _computeLetterIndex(List<CategoryEntry> categories) {
-    final map = <String, int>{};
-    for (var i = 0; i < categories.length; i++) {
-      final name = categories[i].name.toUpperCase();
-      if (name.isEmpty) continue;
-      final first = name[0];
-      final key = RegExp(r'[A-Z]').hasMatch(first) ? first : '#';
-      map.putIfAbsent(key, () => i);
-    }
-    return map;
-  }
-
-  void _scrollToLetter(String letter, Map<String, int> letterIndexMap) {
-    final index = letterIndexMap[letter];
-    if (index == null) return;
-    final offset = index * _kItemHeight;
-    _scrollController.animateTo(
-      offset.clamp(0.0, _scrollController.position.maxScrollExtent),
-      duration: const Duration(milliseconds: 200),
-      curve: Curves.easeOut,
-    );
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -133,8 +78,6 @@ class _CategoryListState extends State<CategoryList> {
             ? categories
             : categories.where((e) => e.name.toLowerCase().contains(_searchQuery.toLowerCase())).toList();
 
-        final letterIndexMap = _computeLetterIndex(filtered);
-
         return Column(
           children: [
             Padding(
@@ -165,26 +108,18 @@ class _CategoryListState extends State<CategoryList> {
             Expanded(
               child: filtered.isEmpty
                   ? const Center(child: Text('No results', style: TextStyle(fontSize: 12)))
-                  : Stack(
-                      children: [
-                        ListView.builder(
-                          controller: _scrollController,
-                          padding: EdgeInsets.zero,
-                          itemCount: filtered.length,
-                          itemBuilder: (context, index) {
-                            final entry = filtered[index];
-                            return _CategoryRow(
-                              entry: entry,
-                              isSelected: entry.name == selected,
-                              onTap: () => context.read<AppState>().setCategory(entry.name),
-                            );
-                          },
-                        ),
-                        _AlphabetSidebar(
-                          availableLetters: letterIndexMap.keys.toSet(),
-                          onLetterTap: (letter) => _scrollToLetter(letter, letterIndexMap),
-                        ),
-                      ],
+                  : ListView.builder(
+                      controller: _scrollController,
+                      padding: EdgeInsets.zero,
+                      itemCount: filtered.length,
+                      itemBuilder: (context, index) {
+                        final entry = filtered[index];
+                        return _CategoryRow(
+                          entry: entry,
+                          isSelected: entry.name == selected,
+                          onTap: () => context.read<AppState>().setCategory(entry.name),
+                        );
+                      },
                     ),
             ),
           ],
@@ -210,7 +145,7 @@ class _CategoryRow extends StatelessWidget {
     return InkWell(
       onTap: onTap,
       child: Container(
-        height: _kItemHeight,
+        height: 61.0,
         decoration: isSelected
             ? BoxDecoration(
                 color: Colors.blue[50],
@@ -254,45 +189,3 @@ class _CategoryRow extends StatelessWidget {
   }
 }
 
-// -----------------------------------------------------------------------------
-// Alphabet sidebar
-// -----------------------------------------------------------------------------
-
-class _AlphabetSidebar extends StatelessWidget {
-  final Set<String> availableLetters;
-  final void Function(String) onLetterTap;
-
-  const _AlphabetSidebar({required this.availableLetters, required this.onLetterTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return Positioned(
-      top: 0,
-      bottom: 0,
-      right: 0,
-      width: 16,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: _allLetters.map((letter) {
-          final available = availableLetters.contains(letter);
-          return GestureDetector(
-            onTap: available ? () => onLetterTap(letter) : null,
-            child: SizedBox(
-              height: 11,
-              child: Text(
-                letter,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 9,
-                  fontWeight: FontWeight.bold,
-                  color: available ? Colors.blue[700] : Colors.grey[400],
-                  height: 1.1,
-                ),
-              ),
-            ),
-          );
-        }).toList(),
-      ),
-    );
-  }
-}

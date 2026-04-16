@@ -5,14 +5,6 @@ import 'package:provider/provider.dart';
 import '../providers/app_state.dart';
 import '../widgets/app_drawer.dart';
 
-const List<String> _superCats = [
-  'Fish',
-  'Invertebrates',
-  'Sponges',
-  'Corals',
-  'Algae',
-  'Mammals',
-];
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -150,7 +142,7 @@ class _SelectorsRow extends StatelessWidget {
           children: [
             Expanded(
               child: _RadioColumn<String>(
-                values: _superCats,
+                values: AppState.superCats,
                 labelOf: (v) => v,
                 selected: context.watch<AppState>().selectedSuperCat,
                 onChanged: (v) => context.read<AppState>().setSuperCat(v),

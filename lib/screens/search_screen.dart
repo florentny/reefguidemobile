@@ -6,8 +6,8 @@ import '../models/species.dart';
 import '../models/taxonomy_node.dart';
 import '../providers/app_state.dart';
 import '../services/data_service.dart';
+import '../widgets/appbar_dropdown.dart';
 
-const List<String> _superCats = ['Fish', 'Invertebrates', 'Sponges', 'Corals', 'Algae', 'Mammals'];
 
 enum _SortMode { commonName, sciName }
 
@@ -373,7 +373,7 @@ class _SearchAppBar extends StatelessWidget implements PreferredSizeWidget {
       leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: onBack),
       title: const Row(
         mainAxisSize: MainAxisSize.min,
-        children: [_RegionDropdown(), SizedBox(width: 16), _SuperCatDropdown()],
+        children: [_SuperCatDropdown(), SizedBox(width: 8), _RegionDropdown()],
       ),
       centerTitle: false,
     );
@@ -386,24 +386,11 @@ class _RegionDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appState = context.watch<AppState>();
-    return DropdownButtonHideUnderline(
-      child: DropdownButton<int>(
-        value: appState.selectedRegion,
-        icon: const Icon(Icons.keyboard_arrow_down, color: Colors.white),
-        dropdownColor: Colors.blue[700],
-        style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
-        alignment: AlignmentDirectional.centerEnd,
-        items: List.generate(regionNames.length, (i) {
-          return DropdownMenuItem<int>(
-            alignment: AlignmentDirectional.centerEnd,
-            value: i,
-            child: Text(regionNames[i], textAlign: TextAlign.right),
-          );
-        }),
-        onChanged: (value) {
-          if (value != null) context.read<AppState>().setRegion(value);
-        },
-      ),
+    return AppBarDropdown<int>(
+      value: appState.selectedRegion,
+      items: List.generate(regionNames.length, (i) => i),
+      labelOf: (i) => regionNames[i],
+      onChanged: (v) => context.read<AppState>().setRegion(v),
     );
   }
 }
@@ -414,24 +401,11 @@ class _SuperCatDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final appState = context.watch<AppState>();
-    return DropdownButtonHideUnderline(
-      child: DropdownButton<String>(
-        value: appState.selectedSuperCat,
-        icon: const Icon(Icons.keyboard_arrow_down, color: Colors.white),
-        dropdownColor: Colors.blue[700],
-        style: const TextStyle(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w600),
-        alignment: AlignmentDirectional.centerEnd,
-        items: _superCats.map((cat) {
-          return DropdownMenuItem<String>(
-            alignment: AlignmentDirectional.centerEnd,
-            value: cat,
-            child: Text(cat, textAlign: TextAlign.right),
-          );
-        }).toList(),
-        onChanged: (value) {
-          if (value != null) context.read<AppState>().setSuperCat(value);
-        },
-      ),
+    return AppBarDropdown<String>(
+      value: appState.selectedSuperCat,
+      items: AppState.superCats,
+      labelOf: (v) => v,
+      onChanged: (v) => context.read<AppState>().setSuperCat(v),
     );
   }
 }
