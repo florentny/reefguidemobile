@@ -316,7 +316,10 @@ class _SearchScreenState extends State<SearchScreen> {
                         children: [
                           ListView.builder(
                             controller: _scrollController,
-                            padding: const EdgeInsets.only(right: 24),
+                            padding: EdgeInsets.only(
+                              right: 24,
+                              bottom: MediaQuery.paddingOf(context).bottom,
+                            ),
                             itemCount: filtered.length,
                             itemExtent: _kItemHeight,
                             itemBuilder: (context, index) {

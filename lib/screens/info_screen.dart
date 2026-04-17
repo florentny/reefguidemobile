@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../services/data_service.dart';
 
@@ -75,6 +76,31 @@ class InfoScreen extends StatelessWidget {
                 const Text(
                   'mobile@reefguide.org',
                   style: TextStyle(fontSize: 14, color: Colors.black87),
+                ),
+                const SizedBox(height: 32),
+
+                // ── Privacy Policy ────────────────────────────────────────
+                Text(
+                  'Privacy Policy',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue[700],
+                  ),
+                ),
+                const SizedBox(height: 12),
+                GestureDetector(
+                  onTap: () => launchUrl(
+                    Uri.parse('https://reefguide.org/privacy_policy.txt'),
+                    mode: LaunchMode.externalApplication,
+                  ),
+                  child: const Text(
+                    'https://reefguide.org/privacy_policy.txt',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.blue,
+                      decoration: TextDecoration.underline,
+                    ),
+                  ),
                 ),
                 const SizedBox(height: 32),
 

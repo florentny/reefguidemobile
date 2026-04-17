@@ -110,7 +110,9 @@ class _CategoryListState extends State<CategoryList> {
                   ? const Center(child: Text('No results', style: TextStyle(fontSize: 12)))
                   : ListView.builder(
                       controller: _scrollController,
-                      padding: EdgeInsets.zero,
+                      padding: EdgeInsets.only(
+                        bottom: MediaQuery.paddingOf(context).bottom,
+                      ),
                       itemCount: filtered.length,
                       itemBuilder: (context, index) {
                         final entry = filtered[index];

@@ -73,6 +73,7 @@ class SpeciesList extends StatelessWidget {
 
         return ListView.builder(
           key: ValueKey(category),
+          padding: EdgeInsets.only(bottom: MediaQuery.paddingOf(context).bottom),
           itemCount: items.length,
           itemBuilder: (context, index) {
             final item = items[index];
