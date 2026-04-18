@@ -96,7 +96,7 @@ class InfoScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  'All photographs in this application are the exclusive property of Florent Charpin, unless explicitly stated otherwise.'
+                  'All photographs in this application are the exclusive property of Florent Charpin, unless explicitly stated otherwise. '
                   'Unauthorized use, reproduction, distribution, or modification of any content is strictly prohibited without prior written permission from the copyright holder.',
                   style: TextStyle(fontSize: 13, color: Colors.black54, height: 1.5),
                 ),

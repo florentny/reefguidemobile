@@ -116,7 +116,7 @@ class _SpeciesScreenState extends State<SpeciesScreen> {
       backgroundColor: Colors.blue[700],
       foregroundColor: Colors.white,
       automaticallyImplyLeading: false,
-      leading: _NavButton(label: '<', onPressed: () => context.pop()),
+      leading: _NavButton(label: '<', onPressed: () => context.pop(), narrow: true),
       title: null,
       actions: [
         Consumer<AppState>(
@@ -188,7 +188,7 @@ class _SpeciesDetail extends StatelessWidget {
       backgroundColor: Colors.blue[700],
       foregroundColor: Colors.white,
       automaticallyImplyLeading: false,
-      leading: _NavButton(label: '<', onPressed: () => context.pop()),
+      leading: _NavButton(label: '<', onPressed: () => context.pop(), narrow: true),
       centerTitle: false,
       title: lowestTaxonomyCategory != null
           ? Text(
@@ -329,7 +329,7 @@ class _LandscapePhotoViewState extends State<_LandscapePhotoView> {
               child: Row(
                 children: [
                   // Back
-                  _NavButton(label: '<', onPressed: () => context.pop()),
+                  _NavButton(label: '<', onPressed: () => context.pop(), narrow: true),
                   // Species name
                   Expanded(
                     child: Padding(
@@ -592,20 +592,21 @@ class _NavButton extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
   final bool enabled;
+  final bool narrow;
 
-  const _NavButton({required this.label, this.onPressed, this.enabled = true});
+  const _NavButton({required this.label, this.onPressed, this.enabled = true, this.narrow = false});
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
+      padding: EdgeInsets.symmetric(vertical: 10, horizontal: narrow ? 10 : 4),
       child: ElevatedButton(
         onPressed: onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: enabled ? Colors.white.withAlpha(51) : Colors.white.withAlpha(20),
           foregroundColor: enabled ? Colors.white : Colors.white54,
-          padding: const EdgeInsets.symmetric(horizontal: 10),
-          minimumSize: const Size(36, 36),
+          padding: EdgeInsets.symmetric(horizontal: narrow ? 4 : 10),
+          minimumSize: Size(narrow ? 24 : 36, 36),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           elevation: 0,
         ),
