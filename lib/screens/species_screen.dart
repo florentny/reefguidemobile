@@ -144,18 +144,38 @@ class _SpeciesScreenState extends State<SpeciesScreen> {
 // The actual detail layout
 // -----------------------------------------------------------------------------
 
-class _SpeciesDetail extends StatelessWidget {
+class _SpeciesDetail extends StatefulWidget {
   final Species species;
   final String? lowestTaxonomyCategory;
 
   const _SpeciesDetail({required this.species, this.lowestTaxonomyCategory});
 
   @override
+  State<_SpeciesDetail> createState() => _SpeciesDetailState();
+}
+
+class _SpeciesDetailState extends State<_SpeciesDetail> {
+  int _currentPage = 0;
+
+  @override
+  void didUpdateWidget(_SpeciesDetail oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.species.id != widget.species.id) {
+      _currentPage = 0;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final isLandscape = !kIsWeb && MediaQuery.of(context).orientation == Orientation.landscape;
 
     if (isLandscape) {
-      return _LandscapePhotoView(species: species, lowestTaxonomyCategory: lowestTaxonomyCategory);
+      return _LandscapePhotoView(
+        species: widget.species,
+        lowestTaxonomyCategory: widget.lowestTaxonomyCategory,
+        initialPage: _currentPage,
+        onPageChanged: (p) => setState(() => _currentPage = p),
+      );
     }
 
     return Scaffold(
@@ -165,17 +185,19 @@ class _SpeciesDetail extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             // Scientific / common name header
-            _NameHeader(species: species),
+            _NameHeader(species: widget.species),
             // Photo carousel
             PhotoCarousel(
               // Key forces carousel reset when species changes
-              key: ValueKey(species.id),
-              species: species,
+              key: ValueKey(widget.species.id),
+              species: widget.species,
+              initialPage: _currentPage,
+              onPageChanged: (p) => setState(() => _currentPage = p),
             ),
             // Details section
-            _DetailsSection(species: species),
+            _DetailsSection(species: widget.species),
             // Taxonomy section
-            TaxonomyTreeWidget(speciesId: species.id),
+            TaxonomyTreeWidget(speciesId: widget.species.id),
             const SizedBox(height: 24),
           ],
         ),
@@ -190,9 +212,9 @@ class _SpeciesDetail extends StatelessWidget {
       automaticallyImplyLeading: false,
       leading: _NavButton(label: '<', onPressed: () => context.pop(), narrow: true),
       centerTitle: false,
-      title: lowestTaxonomyCategory != null
+      title: widget.lowestTaxonomyCategory != null
           ? Text(
-              lowestTaxonomyCategory!,
+              widget.lowestTaxonomyCategory!,
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.white),
             )
           : null,
@@ -225,8 +247,15 @@ class _SpeciesDetail extends StatelessWidget {
 class _LandscapePhotoView extends StatefulWidget {
   final Species species;
   final String? lowestTaxonomyCategory;
+  final int initialPage;
+  final ValueChanged<int>? onPageChanged;
 
-  const _LandscapePhotoView({required this.species, this.lowestTaxonomyCategory});
+  const _LandscapePhotoView({
+    required this.species,
+    this.lowestTaxonomyCategory,
+    this.initialPage = 0,
+    this.onPageChanged,
+  });
 
   @override
   State<_LandscapePhotoView> createState() => _LandscapePhotoViewState();
@@ -241,7 +270,8 @@ class _LandscapePhotoViewState extends State<_LandscapePhotoView> {
   @override
   void initState() {
     super.initState();
-    _pageController = PageController();
+    _currentPage = widget.initialPage;
+    _pageController = PageController(initialPage: widget.initialPage);
     _transformController = TransformationController();
     _transformController.addListener(_onTransformChanged);
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
@@ -295,6 +325,7 @@ class _LandscapePhotoViewState extends State<_LandscapePhotoView> {
               onPageChanged: (page) {
                 _transformController.value = Matrix4.identity();
                 setState(() => _currentPage = page);
+                widget.onPageChanged?.call(page);
               },
               itemBuilder: (context, index) {
                 final photo = photos[index];

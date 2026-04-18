@@ -5,8 +5,10 @@ import '../models/species.dart';
 
 class PhotoCarousel extends StatefulWidget {
   final Species species;
+  final int initialPage;
+  final ValueChanged<int>? onPageChanged;
 
-  const PhotoCarousel({super.key, required this.species});
+  const PhotoCarousel({super.key, required this.species, this.initialPage = 0, this.onPageChanged});
 
   @override
   State<PhotoCarousel> createState() => _PhotoCarouselState();
@@ -21,7 +23,8 @@ class _PhotoCarouselState extends State<PhotoCarousel> {
   @override
   void initState() {
     super.initState();
-    _pageController = PageController();
+    _currentPage = widget.initialPage;
+    _pageController = PageController(initialPage: widget.initialPage);
     _transformController = TransformationController();
     _transformController.addListener(_onTransformChanged);
   }
@@ -74,6 +77,7 @@ class _PhotoCarouselState extends State<PhotoCarousel> {
                 onPageChanged: (page) {
                   _transformController.value = Matrix4.identity();
                   setState(() => _currentPage = page);
+                  widget.onPageChanged?.call(page);
                 },
                 itemBuilder: (context, index) {
                   final photo = photos[index];
