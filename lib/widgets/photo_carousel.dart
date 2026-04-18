@@ -86,11 +86,7 @@ class _PhotoCarouselState extends State<PhotoCarousel> {
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) => Container(
                         color: Colors.grey[200],
-                        child: const Icon(
-                          Icons.camera_alt,
-                          color: Colors.grey,
-                          size: 48,
-                        ),
+                        child: const Icon(Icons.camera_alt, color: Colors.grey, size: 48),
                       ),
                     ),
                   );
@@ -103,19 +99,11 @@ class _PhotoCarouselState extends State<PhotoCarousel> {
                 top: 8,
                 right: 8,
                 child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.black54,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(color: Colors.black54, borderRadius: BorderRadius.circular(12)),
                   child: Text(
                     '${_currentPage + 1}/${photos.length}',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 11,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -144,40 +132,42 @@ class _PhotoCarouselState extends State<PhotoCarousel> {
                   child: _CarouselArrowButton(
                     icon: Icons.chevron_right,
                     enabled: _currentPage < photos.length - 1,
-                    onTap: () => _pageController.nextPage(
-                      duration: const Duration(milliseconds: 250),
-                      curve: Curves.easeInOut,
-                    ),
+                    onTap: () =>
+                        _pageController.nextPage(duration: const Duration(milliseconds: 250), curve: Curves.easeInOut),
                   ),
                 ),
               ),
             ],
             // Photo location + type caption (bottom)
-            Builder(builder: (context) {
-              final photo = photos[_currentPage];
-              final location = photo.location;
-              final type = photo.type;
-              if (location.isEmpty && type.isEmpty) return const SizedBox.shrink();
-              final parts = [
-                if (location.isNotEmpty) location,
-                if (type.isNotEmpty) type,
-              ];
-              return Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  color: Colors.black45,
-                  child: Text(
-                    parts.join('  ·  '),
-                    style: const TextStyle(color: Colors.white, fontSize: 11),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+            Builder(
+              builder: (context) {
+                final photo = photos[_currentPage];
+                final location = photo.location;
+                final type = photo.type;
+                final comment = photo.comment;
+                if (location.isEmpty && type.isEmpty && comment.isEmpty) return const SizedBox.shrink();
+                final parts = [
+                  if (location.isNotEmpty) location,
+                  if (type.isNotEmpty) type,
+                  if (comment.isNotEmpty) comment,
+                ];
+                return Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                    color: Colors.black45,
+                    child: Text(
+                      parts.join('  -  '),
+                      style: const TextStyle(color: Colors.white, fontSize: 11),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
-                ),
-              );
-            }),
+                );
+              },
+            ),
           ],
         ),
         // Dot indicator
@@ -194,9 +184,7 @@ class _PhotoCarouselState extends State<PhotoCarousel> {
                   height: 6,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(3),
-                    color: i == _currentPage
-                        ? Colors.blue[700]
-                        : Colors.grey[400],
+                    color: i == _currentPage ? Colors.blue[700] : Colors.grey[400],
                   ),
                 );
               }),
@@ -226,11 +214,7 @@ class _CarouselArrowButton extends StatelessWidget {
   final bool enabled;
   final VoidCallback onTap;
 
-  const _CarouselArrowButton({
-    required this.icon,
-    required this.enabled,
-    required this.onTap,
-  });
+  const _CarouselArrowButton({required this.icon, required this.enabled, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -242,10 +226,7 @@ class _CarouselArrowButton extends StatelessWidget {
         child: Container(
           width: 36,
           height: 36,
-          decoration: const BoxDecoration(
-            color: Colors.black45,
-            shape: BoxShape.circle,
-          ),
+          decoration: const BoxDecoration(color: Colors.black45, shape: BoxShape.circle),
           child: Icon(icon, color: Colors.white, size: 24),
         ),
       ),

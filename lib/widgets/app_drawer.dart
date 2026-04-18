@@ -13,7 +13,7 @@ class AppDrawer extends StatelessWidget {
         children: [
           Container(
             color: Colors.blue[700],
-            padding: const EdgeInsets.fromLTRB(16, 38, 16, 32),
+            padding: const EdgeInsets.fromLTRB(16, 52, 16, 40),
             child: const Text(
               'Florent\'s Reef Guide',
               style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),

@@ -9,11 +9,7 @@ class InfoScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.blue[700],
-        foregroundColor: Colors.white,
-        title: const Text('About'),
-      ),
+      appBar: AppBar(backgroundColor: Colors.blue[700], foregroundColor: Colors.white, title: const Text('About')),
       body: FutureBuilder<AppStats>(
         future: DataService.instance.getStats(),
         builder: (context, snapshot) {
@@ -26,10 +22,9 @@ class InfoScreen extends StatelessWidget {
                 // ── Stats ──────────────────────────────────────────────────
                 Text(
                   'Statistics',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blue[700],
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: Colors.blue[700]),
                 ),
                 const SizedBox(height: 12),
                 _StatRow(
@@ -37,11 +32,7 @@ class InfoScreen extends StatelessWidget {
                   value: stats != null ? '${stats.speciesCount}' : '—',
                   loading: stats == null,
                 ),
-                _StatRow(
-                  label: 'Photos',
-                  value: stats != null ? '${stats.photoCount}' : '—',
-                  loading: stats == null,
-                ),
+                _StatRow(label: 'Photos', value: stats != null ? '${stats.photoCount}' : '—', loading: stats == null),
                 _StatRow(
                   label: 'Categories',
                   value: stats != null ? '${stats.categoryCount}' : '—',
@@ -52,40 +43,31 @@ class InfoScreen extends StatelessWidget {
                 // ── Website ───────────────────────────────────────────────
                 Text(
                   'Website',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blue[700],
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: Colors.blue[700]),
                 ),
                 const SizedBox(height: 12),
-                const Text(
-                  'https://reefguide.org',
-                  style: TextStyle(fontSize: 14, color: Colors.black87),
-                ),
+                const Text('https://reefguide.org', style: TextStyle(fontSize: 14, color: Colors.black87)),
                 const SizedBox(height: 32),
 
                 // ── Contact ───────────────────────────────────────────────
                 Text(
                   'Contact',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blue[700],
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: Colors.blue[700]),
                 ),
                 const SizedBox(height: 12),
-                const Text(
-                  'mobile@reefguide.org',
-                  style: TextStyle(fontSize: 14, color: Colors.black87),
-                ),
+                const Text('mobile@reefguide.org', style: TextStyle(fontSize: 14, color: Colors.black87)),
                 const SizedBox(height: 32),
 
                 // ── Privacy Policy ────────────────────────────────────────
                 Text(
                   'Privacy Policy',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blue[700],
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: Colors.blue[700]),
                 ),
                 const SizedBox(height: 12),
                 GestureDetector(
@@ -95,11 +77,7 @@ class InfoScreen extends StatelessWidget {
                   ),
                   child: const Text(
                     'https://reefguide.org/privacy_policy.txt',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.blue,
-                      decoration: TextDecoration.underline,
-                    ),
+                    style: TextStyle(fontSize: 14, color: Colors.blue, decoration: TextDecoration.underline),
                   ),
                 ),
                 const SizedBox(height: 32),
@@ -107,10 +85,9 @@ class InfoScreen extends StatelessWidget {
                 // ── Copyright ──────────────────────────────────────────────
                 Text(
                   'Copyright',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.blue[700],
-                  ),
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold, color: Colors.blue[700]),
                 ),
                 const SizedBox(height: 12),
                 const Text(
@@ -119,8 +96,8 @@ class InfoScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 8),
                 const Text(
-                  'All photographs and species data in this application are the exclusive property of Florent Charpin. '
-                  'Reproduction, distribution, or use of any content without prior written permission is strictly prohibited.',
+                  'All photographs in this application are the exclusive property of Florent Charpin, unless explicitly stated otherwise.'
+                  'Unauthorized use, reproduction, distribution, or modification of any content is strictly prohibited without prior written permission from the copyright holder.',
                   style: TextStyle(fontSize: 13, color: Colors.black54, height: 1.5),
                 ),
               ],
@@ -137,11 +114,7 @@ class _StatRow extends StatelessWidget {
   final String value;
   final bool loading;
 
-  const _StatRow({
-    required this.label,
-    required this.value,
-    this.loading = false,
-  });
+  const _StatRow({required this.label, required this.value, this.loading = false});
 
   @override
   Widget build(BuildContext context) {
@@ -153,23 +126,12 @@ class _StatRow extends StatelessWidget {
             width: 110,
             child: Text(
               label,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                color: Colors.black87,
-              ),
+              style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600, color: Colors.black87),
             ),
           ),
           loading
-              ? const SizedBox(
-                  width: 14,
-                  height: 14,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : Text(
-                  value,
-                  style: const TextStyle(fontSize: 14, color: Colors.black87),
-                ),
+              ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2))
+              : Text(value, style: const TextStyle(fontSize: 14, color: Colors.black87)),
         ],
       ),
     );

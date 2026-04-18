@@ -5,7 +5,6 @@ import 'package:provider/provider.dart';
 import '../providers/app_state.dart';
 import '../widgets/app_drawer.dart';
 
-
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
@@ -13,116 +12,87 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.blue[900],
-      appBar: AppBar(
-        backgroundColor: Colors.blue[900],
-        foregroundColor: Colors.white,
-        elevation: 0,
-      ),
+      appBar: AppBar(backgroundColor: Colors.blue[900], foregroundColor: Colors.white, elevation: 0),
       drawer: const AppDrawer(),
       body: SafeArea(
         child: SingleChildScrollView(
-        child: Column(
-          children: [
-            const Padding(
-              padding: EdgeInsets.fromLTRB(24, 2, 24, 24),
-              child: Text(
-                "Florent's guide to the marine life of the tropical reefs",
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  height: 1.3,
+          child: Column(
+            children: [
+              const Padding(
+                padding: EdgeInsets.fromLTRB(24, 2, 24, 24),
+                child: Text(
+                  "Florent's guide to the marine life of the tropical reefs",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: Colors.white, height: 1.3),
                 ),
               ),
-            ),
-            const SizedBox(height: 10),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(15),
-                      child: Image.asset(
-                        'asset/img/photo1.jpg',
-                        fit: BoxFit.cover,
+              const SizedBox(height: 10),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(15),
+                        child: Image.asset('asset/img/photo1.jpg', fit: BoxFit.cover),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(15),
-                      child: Image.asset(
-                        'asset/img/photo2.jpg',
-                        fit: BoxFit.cover,
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(15),
+                        child: Image.asset('asset/img/photo2.jpg', fit: BoxFit.cover),
                       ),
                     ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 10),
+              const _SelectorsRow(),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () {
+                  final s = context.read<AppState>();
+                  context.push(
+                    '/browse?region=${s.selectedRegion}'
+                    '&supercat=${Uri.encodeComponent(s.selectedSuperCat)}',
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.blue[900],
+                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                ),
+                child: const Text('Browse by categories'),
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => context.push('/search'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.blue[900],
+                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: const BorderSide(color: Colors.white54),
                   ),
-                ],
+                  textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                  elevation: 0,
+                ),
+                child: const Text('Search by species name'),
               ),
-            ),
-            const SizedBox(height: 10),
-            const _SelectorsRow(),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () {
-                final s = context.read<AppState>();
-                context.push(
-                  '/browse?region=${s.selectedRegion}'
-                  '&supercat=${Uri.encodeComponent(s.selectedSuperCat)}',
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: Colors.blue[900],
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 40,
-                  vertical: 16,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                textStyle: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
+              const SizedBox(height: 24),
+              const Padding(
+                padding: EdgeInsets.only(bottom: 12),
+                child: Text(
+                  '\u00a9 2026 Florent Charpin - https://reefguide.org',
+                  style: TextStyle(color: Colors.white38, fontSize: 10),
                 ),
               ),
-              child: const Text('Browse by categories'),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () => context.push('/search'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: Colors.blue[900],
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 30,
-                  vertical: 16,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  side: const BorderSide(color: Colors.white54),
-                ),
-                textStyle: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                ),
-                elevation: 0,
-              ),
-              child: const Text('Search by species name'),
-            ),
-            const SizedBox(height: 24),
-            const Padding(
-              padding: EdgeInsets.only(bottom: 12),
-              child: Text(
-                'Copyright Florent Charpin - https://reefguide.org',
-                style: TextStyle(color: Colors.white38, fontSize: 10),
-              ),
-            ),
-          ],
-        ),
+            ],
+          ),
         ),
       ),
     );
@@ -170,20 +140,12 @@ class _RadioColumn<T> extends StatelessWidget {
   final T selected;
   final ValueChanged<T> onChanged;
 
-  const _RadioColumn({
-    required this.values,
-    required this.labelOf,
-    required this.selected,
-    required this.onChanged,
-  });
+  const _RadioColumn({required this.values, required this.labelOf, required this.selected, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        color: Colors.white.withAlpha(25),
-        borderRadius: BorderRadius.circular(12),
-      ),
+      decoration: BoxDecoration(color: Colors.white.withAlpha(25), borderRadius: BorderRadius.circular(12)),
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
       child: Column(
         mainAxisSize: MainAxisSize.min,
@@ -203,20 +165,14 @@ class _RadioColumn<T> extends StatelessWidget {
                       height: 18,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        border: Border.all(
-                          color: isSelected ? Colors.white : Colors.white54,
-                          width: 2,
-                        ),
+                        border: Border.all(color: isSelected ? Colors.white : Colors.white54, width: 2),
                       ),
                       child: isSelected
                           ? Center(
                               child: Container(
                                 width: 8,
                                 height: 8,
-                                decoration: const BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Colors.white,
-                                ),
+                                decoration: const BoxDecoration(shape: BoxShape.circle, color: Colors.white),
                               ),
                             )
                           : null,
@@ -228,9 +184,7 @@ class _RadioColumn<T> extends StatelessWidget {
                         style: TextStyle(
                           color: isSelected ? Colors.white : Colors.white70,
                           fontSize: 14,
-                          fontWeight: isSelected
-                              ? FontWeight.w600
-                              : FontWeight.normal,
+                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                         ),
                         overflow: TextOverflow.ellipsis,
                       ),

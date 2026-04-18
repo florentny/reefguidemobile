@@ -103,7 +103,7 @@ class DataService {
     final root = await getTaxonomy(region);
 
     final firstRef = <String, SpeciesRef>{};
-    final counts = <String, int>{};
+    final uniqueIds = <String, Set<String>>{};
 
     for (final ref in root.allSpecies) {
       if (ref.superCat != superCat) continue;
@@ -111,7 +111,7 @@ class DataService {
       final cat = species?.category ?? '';
       if (cat.isEmpty) continue;
       firstRef.putIfAbsent(cat, () => ref);
-      counts[cat] = (counts[cat] ?? 0) + 1;
+      (uniqueIds[cat] ??= {}).add(ref.id);
     }
 
     final entries = firstRef.entries.map((e) {
@@ -120,7 +120,7 @@ class DataService {
         name: e.key,
         firstSpeciesId: ref.id,
         firstThumb: ref.thumb,
-        speciesCount: counts[e.key]!,
+        speciesCount: uniqueIds[e.key]!.length,
       );
     }).toList();
 

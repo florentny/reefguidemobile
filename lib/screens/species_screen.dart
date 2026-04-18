@@ -35,10 +35,7 @@ class _SpeciesScreenState extends State<SpeciesScreen> {
 
   @override
   void dispose() {
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-    ]);
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
     super.dispose();
   }
 
@@ -414,7 +411,11 @@ class _LandscapePhotoViewState extends State<_LandscapePhotoView> {
             Builder(
               builder: (context) {
                 final photo = photos[_currentPage];
-                final parts = [if (photo.location.isNotEmpty) photo.location, if (photo.type.isNotEmpty) photo.type];
+                final parts = [
+                  if (photo.location.isNotEmpty) photo.location,
+                  if (photo.type.isNotEmpty) photo.type,
+                  if (photo.comment.isNotEmpty) photo.comment,
+                ];
                 if (parts.isEmpty) return const SizedBox.shrink();
                 return Positioned(
                   bottom: 0,
@@ -435,7 +436,7 @@ class _LandscapePhotoViewState extends State<_LandscapePhotoView> {
                       ),
                     ),
                     child: Text(
-                      parts.join('  ·  '),
+                      parts.join('  -  '),
                       style: const TextStyle(color: Colors.white, fontSize: 11),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,

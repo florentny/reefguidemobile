@@ -45,7 +45,7 @@ class SpeciesList extends StatelessWidget {
           );
         }
         final groups = snapshot.data ?? [];
-        final totalCount = groups.fold(0, (sum, g) => sum + g.species.length);
+        final totalCount = {for (final g in groups) for (final r in g.species) r.id}.length;
 
         // Flatten into a scrollable item list.
         // Item types: _SectionHeader (SpeciesGroup), SpeciesRef.
@@ -225,11 +225,11 @@ class _FamilyHeader extends StatelessWidget {
               ),
             ),
           ),
-          if (group.species.length < totalCount)
+          if (group.species.map((r) => r.id).toSet().length < totalCount)
             Padding(
               padding: const EdgeInsets.only(top: 2),
               child: Text(
-                '${group.species.length} species',
+                '${group.species.map((r) => r.id).toSet().length} species',
                 style: TextStyle(
                   fontSize: 11,
                   color: Colors.white.withValues(alpha: 0.75),

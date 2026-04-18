@@ -257,11 +257,17 @@ class _SearchScreenState extends State<SearchScreen> {
               decoration: InputDecoration(
                 hintText: 'Search by common or scientific name…',
                 prefixIcon: const Icon(Icons.search, size: 20),
+                prefixIconConstraints: const BoxConstraints(minWidth: 36, minHeight: 30),
                 suffixIcon: _query.isNotEmpty
-                    ? IconButton(icon: const Icon(Icons.clear, size: 18), onPressed: _clearQuery)
+                    ? IconButton(
+                        icon: const Icon(Icons.clear, size: 18),
+                        onPressed: _clearQuery,
+                        constraints: const BoxConstraints(minWidth: 36, minHeight: 30),
+                      )
                     : null,
+                suffixIconConstraints: const BoxConstraints(minWidth: 36, minHeight: 3),
                 isDense: true,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(18)),
               ),
               onChanged: _onQueryChanged,
@@ -269,7 +275,7 @@ class _SearchScreenState extends State<SearchScreen> {
           ),
           // Count + sort toggle on the same row
           Padding(
-            padding: const EdgeInsets.fromLTRB(14, 2, 12, 2),
+            padding: const EdgeInsets.fromLTRB(14, 0, 12, 0),
             child: Row(
               children: [
                 if (!loading)
@@ -282,16 +288,18 @@ class _SearchScreenState extends State<SearchScreen> {
                 const Spacer(),
                 SegmentedButton<_SortMode>(
                   segments: const [
-                    ButtonSegment(value: _SortMode.commonName, label: Text('Common name')),
-                    ButtonSegment(value: _SortMode.sciName, label: Text('Scientific name')),
+                    ButtonSegment(value: _SortMode.commonName, label: Text('Common')),
+                    ButtonSegment(value: _SortMode.sciName, label: Text('Scientific')),
                   ],
                   selected: {_sortMode},
                   onSelectionChanged: (selection) => setState(() => _sortMode = selection.first),
                   style: SegmentedButton.styleFrom(
-                    textStyle: const TextStyle(fontSize: 12),
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    minimumSize: const Size(0, 32),
+                    textStyle: const TextStyle(fontSize: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
+                    minimumSize: const Size(0, 0),
                     tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    visualDensity: VisualDensity(horizontal: 0, vertical: -4),
+                    iconSize: 10,
                   ),
                 ),
               ],
@@ -316,10 +324,7 @@ class _SearchScreenState extends State<SearchScreen> {
                         children: [
                           ListView.builder(
                             controller: _scrollController,
-                            padding: EdgeInsets.only(
-                              right: 24,
-                              bottom: MediaQuery.paddingOf(context).bottom,
-                            ),
+                            padding: EdgeInsets.only(right: 24, bottom: MediaQuery.paddingOf(context).bottom),
                             itemCount: filtered.length,
                             itemExtent: _kItemHeight,
                             itemBuilder: (context, index) {
