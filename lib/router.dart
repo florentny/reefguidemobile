@@ -33,15 +33,7 @@ final appRouter = GoRouter(
       routes: [
         GoRoute(
           path: 'species/:id',
-          builder: (context, state) {
-            final id = state.pathParameters['id']!;
-            return _StateInitializer(
-              region: 0,
-              supercat: 'Fish',
-              speciesId: id,
-              child: const SpeciesScreen(),
-            );
-          },
+          builder: (context, state) => const SpeciesScreen(),
         ),
       ],
     ),
