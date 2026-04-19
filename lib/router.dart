@@ -1,3 +1,4 @@
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -12,8 +13,13 @@ import 'screens/species_screen.dart';
 import 'screens/splash_screen.dart';
 
 final appRouter = GoRouter(
+  observers: kIsWeb ? [FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance)] : [],
   initialLocation: kIsWeb ? '/' : '/splash',
   debugLogDiagnostics: true, // logs every route change to the console
+  errorBuilder: (context, state) {
+    WidgetsBinding.instance.addPostFrameCallback((_) => context.go('/'));
+    return const SizedBox.shrink();
+  },
   routes: [
     GoRoute(
       path: '/splash',
