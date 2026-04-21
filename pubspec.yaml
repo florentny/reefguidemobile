@@ -78,7 +78,9 @@ flutter:
 
   assets:
     - asset/json/
-    - asset/pix/
+    - asset/pix1/
+    - asset/pix2/
+    - asset/pix3/
     - asset/img/
     - shorebird.yaml
 

@@ -334,7 +334,7 @@ class _LandscapePhotoViewState extends State<_LandscapePhotoView> {
                   minScale: 1.0,
                   maxScale: 4.0,
                   child: Image.asset(
-                    'asset/pix/${widget.species.id}${photo.id}.jpg',
+                    pixPath(widget.species.id, photo.id),
                     fit: BoxFit.contain,
                     errorBuilder: (context, error, stackTrace) =>
                         const Center(child: Icon(Icons.camera_alt, color: Colors.white38, size: 64)),

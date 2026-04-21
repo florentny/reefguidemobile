@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart' show kIsWeb, defaultTargetPlatform;
 import 'package:flutter/material.dart';
 
 import '../models/species.dart';
+import '../services/data_service.dart';
 
 class PhotoCarousel extends StatefulWidget {
   final Species species;
@@ -86,7 +87,7 @@ class _PhotoCarouselState extends State<PhotoCarousel> {
                     minScale: 1.0,
                     maxScale: 4.0,
                     child: Image.asset(
-                      'asset/pix/${widget.species.id}${photo.id}.jpg',
+                      pixPath(widget.species.id, photo.id),
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) => Container(
                         color: Colors.grey[200],

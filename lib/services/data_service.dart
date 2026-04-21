@@ -5,6 +5,16 @@ import 'package:flutter/services.dart';
 import '../models/species.dart';
 import '../models/taxonomy_node.dart';
 
+String pixPath(String speciesId, int photoId) {
+  final c = speciesId[0].toLowerCase();
+  final dir = (c.compareTo('a') >= 0 && c.compareTo('g') <= 0)
+      ? 'pix1'
+      : (c.compareTo('h') >= 0 && c.compareTo('r') <= 0)
+          ? 'pix2'
+          : 'pix3';
+  return 'asset/$dir/$speciesId$photoId.jpg';
+}
+
 class CategoryEntry {
   final String name;
   final String firstSpeciesId;
