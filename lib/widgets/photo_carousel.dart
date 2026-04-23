@@ -152,7 +152,7 @@ class _PhotoCarouselState extends State<PhotoCarousel> {
                 final comment = photo.comment;
                 if (location.isEmpty && type.isEmpty && comment.isEmpty) return const SizedBox.shrink();
                 final parts = [
-                  if (location.isNotEmpty) location,
+                  if (location.isNotEmpty && location != 'N/A') location,
                   if (type.isNotEmpty) type,
                   if (comment.isNotEmpty) comment,
                 ];

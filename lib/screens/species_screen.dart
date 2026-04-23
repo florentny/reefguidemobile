@@ -443,7 +443,7 @@ class _LandscapePhotoViewState extends State<_LandscapePhotoView> {
               builder: (context) {
                 final photo = photos[_currentPage];
                 final parts = [
-                  if (photo.location.isNotEmpty) photo.location,
+                  if (photo.location.isNotEmpty && photo.location != 'N/A') photo.location,
                   if (photo.type.isNotEmpty) photo.type,
                   if (photo.comment.isNotEmpty) photo.comment,
                 ];
@@ -538,9 +538,14 @@ class _DetailsSection extends StatelessWidget {
         children: [
           if (species.size.isNotEmpty) _DetailRow(label: 'Size', value: species.size),
           if (species.depth.isNotEmpty) _DetailRow(label: 'Depth', value: species.depth),
-          if (species.distribution.isNotEmpty)
-            _DetailRow(label: 'Distribution', value: species.distribution.join(', ')),
-          if (species.endemic) const _DetailRow(label: 'Endemic', value: 'Yes'),
+          if (species.distribution.isNotEmpty || species.endemic)
+            _DetailRow(
+              label: 'Distribution',
+              value: [
+                if (species.distribution.isNotEmpty) species.distribution.join(', '),
+                if (species.endemic) '(Endemic)',
+              ].join(' '),
+            ),
           if (species.synonyms.isNotEmpty) _DetailRow(label: 'Synonyms', value: species.synonyms),
           if (species.aka.isNotEmpty) _DetailRow(label: 'Also known as', value: species.aka),
           if (species.note.isNotEmpty)
