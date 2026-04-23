@@ -24,3 +24,7 @@ plugins {
 }
 
 include(":app")
+include(":pix1")
+include(":pix2")
+include(":pix3")
+include(":pix4")

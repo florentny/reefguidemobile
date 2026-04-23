@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 1.0.0+1
+version: 1.1.0+2
 
 environment:
   sdk: ^3.11.4
@@ -50,12 +50,12 @@ dev_dependencies:
   flutter_native_splash: ^2.4.4
 
 flutter_native_splash:
-  color: "#1d6798"
+  color: "#000000"
   image: asset/img/splash.png
   fullscreen: true
   web: false
   android_12:
-    color: "#1d6798"
+    color: "#000000"
     image: asset/img/splash.png
 
 flutter_launcher_icons:
@@ -78,11 +78,22 @@ flutter:
 
   assets:
     - asset/json/
-    - asset/pix1/
-    - asset/pix2/
-    - asset/pix3/
     - asset/img/
     - shorebird.yaml
+
+  deferred-components:
+    - name: pix1
+      assets:
+        - asset/pix1/
+    - name: pix2
+      assets:
+        - asset/pix2/
+    - name: pix3
+      assets:
+        - asset/pix3/
+    - name: pix4
+      assets:
+        - asset/pix4/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

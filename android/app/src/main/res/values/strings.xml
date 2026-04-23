@@ -1,4 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="photosName">photos</string>
+    <string name="title_pix1">Species Photos A–D</string>
+    <string name="title_pix2">Species Photos E–L</string>
+    <string name="title_pix3">Species Photos M–R</string>
+    <string name="title_pix4">Species Photos S–Z</string>
+    <string name="pix1Name">pix1</string>
+    <string name="pix2Name">pix2</string>
+    <string name="pix3Name">pix3</string>
+    <string name="pix4Name">pix4</string>
 </resources>

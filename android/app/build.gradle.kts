@@ -15,7 +15,6 @@ if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 }
 
-
 android {
     namespace = "org.reefguide.reefmobile"
     compileSdk = flutter.compileSdkVersion
@@ -58,8 +57,16 @@ android {
         }
     }
 
+    dynamicFeatures += setOf(":pix1", ":pix2", ":pix3", ":pix4")
+
 }
+
+
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    implementation("com.google.android.play:feature-delivery:2.1.0")
 }

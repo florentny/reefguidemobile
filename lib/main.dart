@@ -8,6 +8,7 @@ import 'package:flutter/foundation.dart';
 
 import 'providers/app_state.dart';
 import 'router.dart';
+import 'services/deferred_assets_service.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
@@ -22,6 +23,9 @@ void main() async {
   }
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   FlutterNativeSplash.remove();
+  // Kick off deferred-component installs at startup so images are available
+  // before the user navigates. SplashScreen watches progress.
+  DeferredAssetsService.instance.installAll();
   runApp(ChangeNotifierProvider(create: (_) => AppState(), child: const ReefMobileApp()));
 }
 

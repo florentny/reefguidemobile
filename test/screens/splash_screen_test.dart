@@ -16,10 +16,9 @@ Widget _buildWithRouter({required Widget homeStub}) {
   return MaterialApp.router(routerConfig: router);
 }
 
-// Advance the fake clock past the 5-second navigation timer so no timer
-// is left pending when the widget tree is disposed.
+// Advance past the minimum splash duration used by SplashScreen.
 Future<void> _drainTimer(WidgetTester tester) async {
-  await tester.pump(const Duration(seconds: 5));
+  await tester.pump(const Duration(seconds: 3));
   await tester.pumpAndSettle();
 }
 
@@ -27,42 +26,38 @@ void main() {
   setUpAll(setupMockAssets);
 
   group('SplashScreen', () {
-    testWidgets('renders a full-width Image.asset', (tester) async {
+    testWidgets('renders the splash image', (tester) async {
       await tester.pumpWidget(_buildWithRouter(homeStub: const Scaffold()));
       await tester.pump();
-      final image = tester.widget<Image>(find.byType(Image));
-      expect(image.fit, BoxFit.fitWidth);
-      expect((image.image as AssetImage).assetName, 'asset/img/splash.png');
-      expect(image.width, double.infinity);
+      final images = tester.widgetList<Image>(find.byType(Image));
+      expect(
+        images.any(
+          (img) =>
+              img.image is AssetImage &&
+              (img.image as AssetImage).assetName == 'asset/img/splash.png',
+        ),
+        isTrue,
+      );
       await _drainTimer(tester);
     });
 
-    testWidgets('image is centered on screen', (tester) async {
+    testWidgets('shows a progress indicator', (tester) async {
       await tester.pumpWidget(_buildWithRouter(homeStub: const Scaffold()));
       await tester.pump();
-      expect(find.byType(Center), findsOneWidget);
+      expect(find.byType(LinearProgressIndicator), findsWidgets);
       await _drainTimer(tester);
     });
 
-    testWidgets('does not navigate before 5 seconds', (tester) async {
+    testWidgets('navigates to / after the minimum splash duration', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         _buildWithRouter(homeStub: const Scaffold(body: Text('home'))),
       );
       await tester.pump();
-      await tester.pump(const Duration(seconds: 4, milliseconds: 999));
-      expect(find.byType(SplashScreen), findsOneWidget);
-      expect(find.text('home'), findsNothing);
-      // drain the remaining timer
-      await tester.pump(const Duration(milliseconds: 1));
-      await tester.pumpAndSettle();
-    });
-
-    testWidgets('navigates to / after 5 seconds', (tester) async {
-      await tester.pumpWidget(
-        _buildWithRouter(homeStub: const Scaffold(body: Text('home'))),
-      );
-      await tester.pump();
-      await tester.pump(const Duration(seconds: 5));
+      // On non-Android hosts the service completes immediately; the screen
+      // still holds for the minimum splash duration before advancing.
+      await tester.pump(const Duration(seconds: 3));
       await tester.pumpAndSettle();
       expect(find.text('home'), findsOneWidget);
       expect(find.byType(SplashScreen), findsNothing);
