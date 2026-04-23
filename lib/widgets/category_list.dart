@@ -159,7 +159,7 @@ class _CategoryRow extends StatelessWidget {
           children: [
             ClipRRect(
               child: Image.asset(
-                'asset/pix/${entry.firstSpeciesId}${entry.firstThumb}.jpg',
+                pixPath(entry.firstSpeciesId, entry.firstThumb),
                 width: 80,
                 height: 60,
                 fit: BoxFit.cover,

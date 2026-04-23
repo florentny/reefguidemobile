@@ -1,7 +1,8 @@
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb, defaultTargetPlatform;
 import 'package:flutter/material.dart';
 
 import '../models/species.dart';
+import '../services/data_service.dart';
 
 class PhotoCarousel extends StatefulWidget {
   final Species species;
@@ -86,7 +87,7 @@ class _PhotoCarouselState extends State<PhotoCarousel> {
                     minScale: 1.0,
                     maxScale: 4.0,
                     child: Image.asset(
-                      'asset/pix/${widget.species.id}${photo.id}.jpg',
+                      pixPath(widget.species.id, photo.id),
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) => Container(
                         color: Colors.grey[200],
@@ -112,7 +113,7 @@ class _PhotoCarouselState extends State<PhotoCarousel> {
                 ),
               ),
             // Web-only navigation arrows
-            if (kIsWeb && photos.length > 1) ...[
+            if ((kIsWeb || defaultTargetPlatform == TargetPlatform.linux) && photos.length > 1) ...[
               Positioned(
                 left: 4,
                 top: 0,
@@ -151,7 +152,7 @@ class _PhotoCarouselState extends State<PhotoCarousel> {
                 final comment = photo.comment;
                 if (location.isEmpty && type.isEmpty && comment.isEmpty) return const SizedBox.shrink();
                 final parts = [
-                  if (location.isNotEmpty) location,
+                  if (location.isNotEmpty && location != 'N/A') location,
                   if (type.isNotEmpty) type,
                   if (comment.isNotEmpty) comment,
                 ];

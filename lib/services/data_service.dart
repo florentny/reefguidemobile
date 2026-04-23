@@ -5,6 +5,19 @@ import 'package:flutter/services.dart';
 import '../models/species.dart';
 import '../models/taxonomy_node.dart';
 
+String pixPath(String speciesId, int photoId) {
+  final c = speciesId[0].toLowerCase();
+  final dir = (c.compareTo('a') >= 0 && c.compareTo('d') <= 0)
+      ? 'pix1'
+      : (c.compareTo('e') >= 0 && c.compareTo('l') <= 0)
+      ? 'pix2'
+      : (c.compareTo('m') >= 0 && c.compareTo('r') <= 0)
+      ? 'pix3'
+      : 'pix4';
+
+  return 'asset/$dir/$speciesId$photoId.jpg';
+}
+
 class CategoryEntry {
   final String name;
   final String firstSpeciesId;
@@ -45,11 +58,7 @@ class AppStats {
   final int photoCount;
   final int categoryCount;
 
-  const AppStats({
-    required this.speciesCount,
-    required this.photoCount,
-    required this.categoryCount,
-  });
+  const AppStats({required this.speciesCount, required this.photoCount, required this.categoryCount});
 }
 
 /// Singleton data service. Load and cache JSON assets.
@@ -66,39 +75,30 @@ class DataService {
   // Public API
   // -------------------------------------------------------------------------
 
-  Future<List<Species>> getAllSpecies() =>
-      _allSpeciesFuture ??= _loadAllSpecies();
+  Future<List<Species>> getAllSpecies() => _allSpeciesFuture ??= _loadAllSpecies();
 
   Future<List<Species>> _loadAllSpecies() async {
     final raw = await rootBundle.loadString('asset/json/species_all.json');
     final list = jsonDecode(raw) as List<dynamic>;
-    return list
-        .map((e) => Species.fromJson(e as Map<String, dynamic>))
-        .toList();
+    return list.map((e) => Species.fromJson(e as Map<String, dynamic>)).toList();
   }
 
   /// Cached id→Species lookup map built from species_all.json.
   Future<Map<String, Species>> _getSpeciesMap() =>
-      _speciesMapFuture ??= getAllSpecies().then(
-        (list) => {for (final s in list) s.id: s},
-      );
+      _speciesMapFuture ??= getAllSpecies().then((list) => {for (final s in list) s.id: s});
 
   Future<TaxonomyNode> getTaxonomy(int regionIndex) =>
       _taxonomyFutures.putIfAbsent(regionIndex, () => _loadTaxonomy(regionIndex));
 
   Future<TaxonomyNode> _loadTaxonomy(int regionIndex) async {
-    final raw = await rootBundle
-        .loadString('asset/json/taxonomy_region_$regionIndex.json');
+    final raw = await rootBundle.loadString('asset/json/taxonomy_region_$regionIndex.json');
     return TaxonomyNode.fromJson(jsonDecode(raw) as Map<String, dynamic>);
   }
 
   /// Returns the unique categories (from species_all.json) of all species that
   /// appear in [region]'s taxonomy and match [superCat], sorted alphabetically.
   /// The thumbnail for each category is taken from the first matching species.
-  Future<List<CategoryEntry>> getCategoriesForRegionAndSuperCat(
-    int region,
-    String superCat,
-  ) async {
+  Future<List<CategoryEntry>> getCategoriesForRegionAndSuperCat(int region, String superCat) async {
     final speciesMap = await _getSpeciesMap();
     final root = await getTaxonomy(region);
 
@@ -133,27 +133,17 @@ class DataService {
     final species = await getAllSpecies();
     final totalPhotos = species.fold(0, (sum, s) => sum + s.photos.length);
     final categories = species.map((s) => s.category).where((c) => c.isNotEmpty).toSet();
-    return AppStats(
-      speciesCount: species.length,
-      photoCount: totalPhotos,
-      categoryCount: categories.length,
-    );
+    return AppStats(speciesCount: species.length, photoCount: totalPhotos, categoryCount: categories.length);
   }
 
   /// Returns all [SpeciesRef] in [region] whose species_all.json [category]
   /// matches [categoryName] and whose [superCat] matches, sorted by name.
-  Future<List<SpeciesRef>> getSpeciesForCategory(
-    int region,
-    String categoryName,
-    String superCat,
-  ) async {
+  Future<List<SpeciesRef>> getSpeciesForCategory(int region, String categoryName, String superCat) async {
     final speciesMap = await _getSpeciesMap();
     final root = await getTaxonomy(region);
 
     return root.allSpecies
-        .where((ref) =>
-            ref.superCat == superCat &&
-            (speciesMap[ref.id]?.category ?? '') == categoryName)
+        .where((ref) => ref.superCat == superCat && (speciesMap[ref.id]?.category ?? '') == categoryName)
         .toList()
       ..sort((a, b) => a.sname.compareTo(b.sname));
   }
@@ -161,11 +151,7 @@ class DataService {
   /// Same as [getSpeciesForCategory] but groups species by the nearest enclosing
   /// Family or Subfamily node in the taxonomy tree. Groups are returned in
   /// tree-walk order; species within each group are sorted by scientific name.
-  Future<List<SpeciesGroup>> getSpeciesGroupedForCategory(
-    int region,
-    String categoryName,
-    String superCat,
-  ) async {
+  Future<List<SpeciesGroup>> getSpeciesGroupedForCategory(int region, String categoryName, String superCat) async {
     final speciesMap = await _getSpeciesMap();
     final root = await getTaxonomy(region);
 
@@ -214,13 +200,18 @@ class DataService {
 
       // Prefer Subfamily > Family > Order as the group key.
       final groupKey = subfamily ?? family ?? order;
-      final groupRank = subfamily != null ? 'Subfamily'
-          : family != null ? 'Family'
-          : order != null ? 'Order'
+      final groupRank = subfamily != null
+          ? 'Subfamily'
+          : family != null
+          ? 'Family'
+          : order != null
+          ? 'Order'
           : null;
       // Category belongs to whichever rank defines this group.
-      final groupCat = subfamily != null ? subfamilyCategory
-          : family != null ? familyCategory
+      final groupCat = subfamily != null
+          ? subfamilyCategory
+          : family != null
+          ? familyCategory
           : orderCategory;
       // Parent line only shown for Subfamily (parent = enclosing Family).
       final parentName = subfamily != null ? family : null;
@@ -240,8 +231,7 @@ class DataService {
       }
 
       for (final ref in node.species) {
-        if (ref.superCat == superCat &&
-            (speciesMap[ref.id]?.category ?? '') == categoryName) {
+        if (ref.superCat == superCat && (speciesMap[ref.id]?.category ?? '') == categoryName) {
           if (!groupSpecies.containsKey(groupKey)) {
             registerGroup();
           }
@@ -251,7 +241,8 @@ class DataService {
       }
 
       for (final child in node.children) {
-        walk(child,
+        walk(
+          child,
           order: order,
           orderCategory: orderCategory,
           family: family,
@@ -273,22 +264,20 @@ class DataService {
 
       // Use a genus-level category as the header name if all species in this
       // group share the same non-empty genus category.
-      final genusCats = species
-          .map((s) => speciesGenusCategory[s.id])
-          .where((c) => c != null && c.isNotEmpty)
-          .toSet();
-      final genusGroupCat =
-          (genusCats.length == 1) ? genusCats.first : null;
+      final genusCats = species.map((s) => speciesGenusCategory[s.id]).where((c) => c != null && c.isNotEmpty).toSet();
+      final genusGroupCat = (genusCats.length == 1) ? genusCats.first : null;
 
-      result.add(SpeciesGroup(
-        groupName: key,
-        groupRank: groupRanks[key],
-        parentName: groupParents[key],
-        parentCategory: groupParentCategories[key],
-        groupCategory: groupCategories[key],
-        genusGroupCategory: genusGroupCat,
-        species: species,
-      ));
+      result.add(
+        SpeciesGroup(
+          groupName: key,
+          groupRank: groupRanks[key],
+          parentName: groupParents[key],
+          parentCategory: groupParentCategories[key],
+          groupCategory: groupCategories[key],
+          genusGroupCategory: genusGroupCat,
+          species: species,
+        ),
+      );
     }
     return result;
   }

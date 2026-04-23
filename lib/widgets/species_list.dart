@@ -263,7 +263,7 @@ class _SpeciesCard extends StatelessWidget {
           AspectRatio(
             aspectRatio: 4 / 3,
             child: Image.asset(
-              'asset/pix/${ref.id}${ref.thumb}.jpg',
+              pixPath(ref.id, ref.thumb),
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) => Container(
                 color: Colors.grey[200],

@@ -496,7 +496,7 @@ class _SearchSpeciesCard extends StatelessWidget {
               width: 107,
               height: 80,
               child: Image.asset(
-                'asset/pix/${species.id}$thumbId.jpg',
+                pixPath(species.id, thumbId),
                 fit: BoxFit.cover,
                 errorBuilder: (context, error, stackTrace) => Container(
                   color: Colors.grey[200],
