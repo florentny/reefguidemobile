@@ -133,6 +133,9 @@ class DeferredAssetsService extends ChangeNotifier {
         .toList();
     if (toInstall.isEmpty) {
       _installing = false;
+      // Assets are on disk but still need to be wired into the Flutter engine's
+      // AssetManager — same as after a fresh install.
+      await _registerAssets(alreadyInstalled);
       _done = true;
       notifyListeners();
       return;

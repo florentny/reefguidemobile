@@ -79,7 +79,6 @@ class _SplashScreenState extends State<SplashScreen> {
                 percent: percent,
                 done: done,
                 error: error,
-                progress: _service.progress,
               ),
             ),
           ],
@@ -93,13 +92,11 @@ class _ProgressPanel extends StatelessWidget {
   final int percent;
   final bool done;
   final String? error;
-  final Map<String, ComponentProgress> progress;
 
   const _ProgressPanel({
     required this.percent,
     required this.done,
     required this.error,
-    required this.progress,
   });
 
   @override
@@ -141,8 +138,6 @@ class _ProgressPanel extends StatelessWidget {
                 valueColor: const AlwaysStoppedAnimation(Colors.white),
               ),
             ),
-            const SizedBox(height: 10),
-            _ComponentRows(progress: progress),
           ],
         ),
       ),
@@ -150,98 +145,3 @@ class _ProgressPanel extends StatelessWidget {
   }
 }
 
-class _ComponentRows extends StatelessWidget {
-  final Map<String, ComponentProgress> progress;
-
-  const _ComponentRows({required this.progress});
-
-  @override
-  Widget build(BuildContext context) {
-    final entries = progress.entries.toList();
-    return Column(
-      children: [
-        for (final e in entries)
-          Padding(
-            padding: const EdgeInsets.only(top: 4),
-            child: Row(
-              children: [
-                SizedBox(
-                  width: 56,
-                  child: Text(
-                    _componentLabel(e.key),
-                    style: const TextStyle(color: Colors.white70, fontSize: 12),
-                  ),
-                ),
-                Expanded(
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(3),
-                    child: LinearProgressIndicator(
-                      value: e.value.fraction,
-                      minHeight: 4,
-                      backgroundColor: Colors.white12,
-                      valueColor: AlwaysStoppedAnimation(
-                        _statusColor(e.value.status),
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                SizedBox(
-                  width: 40,
-                  child: Text(
-                    _statusLabel(e.value),
-                    textAlign: TextAlign.right,
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      fontSize: 12,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-      ],
-    );
-  }
-
-  String _componentLabel(String key) {
-    if (key.startsWith('pix') && key.length > 3) {
-      return 'pack ${key.substring(3)}';
-    }
-    return key;
-  }
-
-  Color _statusColor(InstallStatus s) {
-    switch (s) {
-      case InstallStatus.installed:
-        return Colors.lightGreenAccent;
-      case InstallStatus.failed:
-      case InstallStatus.canceled:
-        return Colors.redAccent;
-      default:
-        return Colors.white;
-    }
-  }
-
-  String _statusLabel(ComponentProgress p) {
-    switch (p.status) {
-      case InstallStatus.installed:
-        return 'done';
-      case InstallStatus.failed:
-        return 'err';
-      case InstallStatus.canceled:
-        return 'cxl';
-      case InstallStatus.installing:
-        return 'inst';
-      case InstallStatus.downloaded:
-        return '95%';
-      case InstallStatus.downloading:
-        return '${(p.fraction * 100).round()}%';
-      case InstallStatus.pending:
-        return '…';
-      case InstallStatus.idle:
-      case InstallStatus.unknown:
-        return '';
-    }
-  }
-}
