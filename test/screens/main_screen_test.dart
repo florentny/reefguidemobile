@@ -10,9 +10,9 @@ import 'package:reefmobile/widgets/species_list.dart';
 import '../helpers/mock_assets.dart';
 
 Widget _buildApp(AppState state) => ChangeNotifierProvider<AppState>.value(
-      value: state,
-      child: MaterialApp(home: const MainScreen()),
-    );
+  value: state,
+  child: MaterialApp(home: const MainScreen()),
+);
 
 Future<void> _mount(WidgetTester tester, AppState state) async {
   await tester.runAsync(() async {
@@ -60,7 +60,7 @@ void main() {
       // Tap the superCat dropdown (first AppBarDropdown — shows current superCat label)
       await tester.tap(find.text('Fish'));
       await tester.pumpAndSettle();
-      for (final label in ['Fish', 'Invertebrates', 'Sponges', 'Corals', 'Algae', 'Others']) {
+      for (final label in ['Fish', 'Invertebrates', 'Sponges', 'Corals', 'Algae', 'Mammals and Reptiles']) {
         expect(find.text(label), findsAtLeastNWidgets(1));
       }
     });

@@ -36,6 +36,14 @@ class AppDrawer extends StatelessWidget {
             },
           ),
           ListTile(
+            leading: const Icon(Icons.account_tree_outlined),
+            title: const Text('Browse the taxonomy tree'),
+            onTap: () {
+              Navigator.pop(context);
+              context.push('/taxonomy');
+            },
+          ),
+          ListTile(
             leading: const Icon(Icons.mail_outline),
             title: const Text('Contact'),
             onTap: () async {
