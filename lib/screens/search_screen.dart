@@ -205,7 +205,7 @@ class _SearchScreenState extends State<SearchScreen> {
     final results = <_SearchResult>[];
     for (final s in _allSpecies) {
       final info = _regionMap[s.id];
-      if (info == null || info.superCat != superCat) continue;
+      if (info == null || (superCat != 'All Species' && info.superCat != superCat)) continue;
       if (q.isNotEmpty &&
           !s.name.toLowerCase().contains(q) &&
           !s.sciName.toLowerCase().contains(q) &&

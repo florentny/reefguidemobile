@@ -11,9 +11,17 @@ const List<String> regionNames = [
 ];
 
 class AppState extends ChangeNotifier {
-  static const List<String> superCats = ['Fish', 'Invertebrates', 'Sponges', 'Corals', 'Algae', 'Mammals'];
+  static const List<String> superCats = [
+    'Fish',
+    'Invertebrates',
+    'Sponges',
+    'Corals',
+    'Algae',
+    'Mammals',
+    'All Species',
+  ];
 
-  static String superCatLabel(String superCat) => superCat == 'Mammals' ? 'Others' : superCat;
+  static String superCatLabel(String superCat) => superCat == 'Mammals' ? 'Mammals and Reptiles' : superCat;
 
   int selectedRegion = 0; // 0 = Worldwide
   String selectedSuperCat = 'Fish';
