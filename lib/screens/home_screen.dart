@@ -83,6 +83,22 @@ class HomeScreen extends StatelessWidget {
                 ),
                 child: const Text('Search by species name'),
               ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () => context.push('/taxonomy'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.blue[900],
+                  padding: const EdgeInsets.symmetric(horizontal: 44, vertical: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: const BorderSide(color: Colors.white54),
+                  ),
+                  textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                  elevation: 0,
+                ),
+                child: const Text('Browse by taxonomy'),
+              ),
               const SizedBox(height: 24),
               const Padding(
                 padding: EdgeInsets.only(bottom: 12),

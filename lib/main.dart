@@ -38,6 +38,17 @@ class ReefMobileApp extends StatelessWidget {
       title: 'reefguide.org',
       theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue), useMaterial3: true),
       routerConfig: appRouter,
+      builder: kIsWeb
+          ? (context, child) => ColoredBox(
+                color: Colors.black,
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 750),
+                    child: child,
+                  ),
+                ),
+              )
+          : null,
     );
   }
 }
