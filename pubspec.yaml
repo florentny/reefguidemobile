@@ -38,8 +38,6 @@ dependencies:
   go_router: ^17.2.1
   url_launcher: ^6.3.0
   flutter_native_splash: ^2.4.4
-  firebase_core: ^4.7.0
-  firebase_analytics: ^12.3.0
 
 dev_dependencies:
   flutter_test:
