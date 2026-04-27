@@ -8,8 +8,6 @@ import '../providers/app_state.dart';
 import '../services/data_service.dart';
 import '../widgets/appbar_dropdown.dart';
 
-enum _SortMode { commonName, sciName }
-
 const double _kItemHeight = 80.0;
 
 const List<String> _kAlphabetLetters = [
@@ -81,8 +79,8 @@ class _TaxonomyScreenState extends State<TaxonomyScreen> {
   final Set<TaxonomyNode> _expandedNodes = {};
   TaxonomyNode? _selectedNode;
 
-  _SortMode _sortMode = _SortMode.sciName;
   final _scrollController = ScrollController();
+  final _searchController = TextEditingController();
 
   late AppState _appState;
   bool _listeningToAppState = false;
@@ -112,6 +110,7 @@ class _TaxonomyScreenState extends State<TaxonomyScreen> {
   void dispose() {
     if (_listeningToAppState) _appState.removeListener(_onAppStateChanged);
     _scrollController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -213,21 +212,23 @@ class _TaxonomyScreenState extends State<TaxonomyScreen> {
       );
     }
     result.sort((a, b) {
-      if (_sortMode == _SortMode.commonName) return a.species.name.compareTo(b.species.name);
       final aKey = a.species.sciName.isNotEmpty ? a.species.sciName : (a.familyName ?? a.orderName ?? a.species.name);
       final bKey = b.species.sciName.isNotEmpty ? b.species.sciName : (b.familyName ?? b.orderName ?? b.species.name);
       return aKey.compareTo(bKey);
+    });
+    // Remove duplicate entries for the same species (male/female or phase variants share sciName).
+    final seen = <String>{};
+    result.removeWhere((item) {
+      final key = item.species.sciName.isNotEmpty ? item.species.sciName : item.species.id;
+      return !seen.add(key);
     });
     return result;
   }
 
   String _primaryKey(_SpeciesItem item) {
-    if (_sortMode == _SortMode.sciName) {
-      return item.species.sciName.isNotEmpty
-          ? item.species.sciName
-          : (item.familyName ?? item.orderName ?? item.species.name);
-    }
-    return item.species.name;
+    return item.species.sciName.isNotEmpty
+        ? item.species.sciName
+        : (item.familyName ?? item.orderName ?? item.species.name);
   }
 
   Map<String, int> _computeLetterIndex(List<_SpeciesItem> items) {
@@ -258,6 +259,47 @@ class _TaxonomyScreenState extends State<TaxonomyScreen> {
     return false;
   }
 
+  // Returns the path from root's children down to [target], inclusive, or null if not found.
+  List<TaxonomyNode>? _pathToNode(List<TaxonomyNode> nodes, TaxonomyNode target) {
+    for (final node in nodes) {
+      if (node == target) return [node];
+      final sub = _pathToNode(node.children, target);
+      if (sub != null) return [node, ...sub];
+    }
+    return null;
+  }
+
+  void _collectDescendants(TaxonomyNode node, Set<TaxonomyNode> result) {
+    for (final child in node.children) {
+      result.add(child);
+      _collectDescendants(child, result);
+    }
+  }
+
+  TaxonomyNode? _searchInNodes(List<TaxonomyNode> nodes, String query, String superCat) {
+    for (final node in nodes) {
+      if (!_nodeHasSpecies(node, superCat)) continue;
+      if (node.name.toLowerCase().contains(query) ||
+          (node.category != null && node.category!.toLowerCase().contains(query))) {
+        return node;
+      }
+      final sub = _searchInNodes(node.children, query, superCat);
+      if (sub != null) return sub;
+    }
+    return null;
+  }
+
+  void _navigateToMatch(TaxonomyNode node, String superCat) {
+    final path = _pathToNode(_root!.children, node);
+    if (path == null) return;
+    final pathSet = path.toSet();
+    final descendants = <TaxonomyNode>{};
+    _collectDescendants(node, descendants);
+    _expandedNodes.addAll(path);
+    _expandedNodes.removeWhere((n) => !pathSet.contains(n) && !descendants.contains(n));
+    _selectedNode = node;
+  }
+
   void _onNodeTap(TaxonomyNode node, String superCat) {
     setState(() {
       final hasVisibleChildren = node.children.any((c) => _nodeHasSpecies(c, superCat));
@@ -272,6 +314,18 @@ class _TaxonomyScreenState extends State<TaxonomyScreen> {
         }
       }
       _selectedNode = node;
+
+      // Collapse nodes that are neither on the path to the selected node
+      // nor descendants of it.
+      if (_root != null) {
+        final path = _pathToNode(_root!.children, node);
+        if (path != null) {
+          final pathSet = path.toSet();
+          final descendants = <TaxonomyNode>{};
+          _collectDescendants(node, descendants);
+          _expandedNodes.removeWhere((n) => !pathSet.contains(n) && !descendants.contains(n));
+        }
+      }
     });
   }
 
@@ -292,9 +346,49 @@ class _TaxonomyScreenState extends State<TaxonomyScreen> {
           ? const Center(child: CircularProgressIndicator())
           : Column(
               children: [
+                // Search field
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 4, 6, 2),
+                  child: FractionallySizedBox(
+                    alignment: Alignment.centerLeft,
+                    child: TextField(
+                      controller: _searchController,
+                      style: const TextStyle(fontSize: 12),
+                      decoration: InputDecoration(
+                        constraints: const BoxConstraints.tightFor(height: 24),
+                        hintText: 'Search taxonomy…',
+                        hintStyle: const TextStyle(fontSize: 12),
+                        prefixIcon: const Icon(Icons.search, size: 14),
+                        prefixIconConstraints: const BoxConstraints(minWidth: 28, minHeight: 24),
+                        suffixIcon: _searchController.text.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear, size: 14),
+                                padding: EdgeInsets.zero,
+                                onPressed: () => setState(() => _searchController.clear()),
+                              )
+                            : null,
+                        suffixIconConstraints: const BoxConstraints(minWidth: 28, minHeight: 0),
+                        isDense: true,
+                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(6)),
+                        contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 6),
+                      ),
+                      onChanged: (text) {
+                        if (text.isEmpty || _root == null) {
+                          setState(() {});
+                          return;
+                        }
+                        final q = text.toLowerCase();
+                        final match = _searchInNodes(_root!.children, q, _appState.selectedSuperCat);
+                        setState(() {
+                          if (match != null) _navigateToMatch(match, _appState.selectedSuperCat);
+                        });
+                      },
+                    ),
+                  ),
+                ),
                 // Taxonomy tree
                 ConstrainedBox(
-                  constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * 0.45),
+                  constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * 0.30),
                   child: SingleChildScrollView(
                     child: Column(
                       children: treeItems.map((item) {
@@ -316,32 +410,43 @@ class _TaxonomyScreenState extends State<TaxonomyScreen> {
                   ),
                 ),
                 const Divider(height: 1),
-                // Count + sort toggle
+                // Count + selected node info
                 Padding(
                   padding: const EdgeInsets.fromLTRB(14, 4, 12, 0),
                   child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.baseline,
+                    textBaseline: TextBaseline.alphabetic,
                     children: [
                       Text(
                         '${speciesItems.length} species',
                         style: const TextStyle(fontSize: 12, color: Colors.black45),
                       ),
-                      const Spacer(),
-                      SegmentedButton<_SortMode>(
-                        segments: const [
-                          ButtonSegment(value: _SortMode.commonName, label: Text('Common')),
-                          ButtonSegment(value: _SortMode.sciName, label: Text('Scientific')),
-                        ],
-                        selected: {_sortMode},
-                        onSelectionChanged: (sel) => setState(() => _sortMode = sel.first),
-                        style: SegmentedButton.styleFrom(
-                          textStyle: const TextStyle(fontSize: 10),
-                          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
-                          minimumSize: const Size(0, 0),
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                          visualDensity: const VisualDensity(horizontal: 0, vertical: -4),
-                          iconSize: 10,
+                      if (_selectedNode != null) ...[
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: RichText(
+                            overflow: TextOverflow.ellipsis,
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: _selectedNode!.name,
+                                  style: TextStyle(fontSize: 14, color: Colors.blue[800], fontStyle: FontStyle.italic),
+                                ),
+                                if (_selectedNode!.category != null && _selectedNode!.category!.isNotEmpty) ...[
+                                  TextSpan(
+                                    text: ' · ',
+                                    style: const TextStyle(fontSize: 14, color: Colors.black38),
+                                  ),
+                                  TextSpan(
+                                    text: _selectedNode!.category!,
+                                    style: TextStyle(fontSize: 14, color: Colors.blueGrey[600]),
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
                         ),
-                      ),
+                      ],
                     ],
                   ),
                 ),
@@ -366,7 +471,6 @@ class _TaxonomyScreenState extends State<TaxonomyScreen> {
                                 final item = speciesItems[index];
                                 return _SpeciesCard(
                                   item: item,
-                                  sortMode: _sortMode,
                                   onTap: () {
                                     appState.openSpecies(item.species.id, ids);
                                     context.push('/taxonomy/species/${item.species.id}');
@@ -403,10 +507,11 @@ class _TaxonomyAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       backgroundColor: Colors.blue[700],
       foregroundColor: Colors.white,
+      titleSpacing: 0,
       leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: onBack),
       title: const Row(
         mainAxisSize: MainAxisSize.min,
-        children: [_SuperCatDropdown(), SizedBox(width: 8), _RegionDropdown()],
+        children: [_SuperCatDropdown(), SizedBox(width: 2), _RegionDropdown()],
       ),
       centerTitle: false,
     );
@@ -481,7 +586,7 @@ class _TreeNodeRow extends StatelessWidget {
               ? const Border(left: BorderSide(color: Colors.blue, width: 3))
               : const Border(left: BorderSide(color: Colors.transparent, width: 3)),
         ),
-        padding: EdgeInsets.only(left: 12.0 + item.depth * 20.0, right: 12, top: 2, bottom: 2),
+        padding: EdgeInsets.only(left: 2.0 + item.depth * 10.0, right: 6, top: 2, bottom: 2),
         child: Row(
           children: [
             SizedBox(
@@ -504,8 +609,8 @@ class _TreeNodeRow extends StatelessWidget {
                     TextSpan(
                       text: node.name,
                       style: TextStyle(
-                        fontSize: 16,
-                        fontStyle: isGenus ? FontStyle.italic : FontStyle.normal,
+                        fontSize: 12,
+                        fontStyle: FontStyle.italic,
                         fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                         color: nameColor,
                       ),
@@ -513,12 +618,16 @@ class _TreeNodeRow extends StatelessWidget {
                     if (node.rank.isNotEmpty)
                       TextSpan(
                         text: ' (${node.rank})',
-                        style: TextStyle(fontSize: 12, color: metaColor, fontWeight: FontWeight.normal),
+                        style: TextStyle(fontSize: 10, color: metaColor, fontWeight: FontWeight.normal),
                       ),
                     if (node.category != null && node.category!.isNotEmpty)
                       TextSpan(
                         text: ' ${node.category}',
-                        style: TextStyle(fontSize: 14, color: categoryColor, fontWeight: FontWeight.normal),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: categoryColor,
+                          fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                        ),
                       ),
                     TextSpan(
                       text: ' ($speciesCount)',
@@ -541,16 +650,15 @@ class _TreeNodeRow extends StatelessWidget {
 
 class _SpeciesCard extends StatelessWidget {
   final _SpeciesItem item;
-  final _SortMode sortMode;
   final VoidCallback onTap;
 
-  const _SpeciesCard({required this.item, required this.sortMode, required this.onTap});
+  const _SpeciesCard({required this.item, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     final species = item.species;
     final thumbId = species.thumbs.isNotEmpty ? species.thumbs.first : 1;
-    final sciMode = sortMode == _SortMode.sciName;
+    const sciMode = true;
 
     final String primaryText;
     final bool primaryIsItalic;
@@ -668,21 +776,21 @@ class _AlphabetSidebar extends StatelessWidget {
       right: 0,
       width: 24,
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
         children: _kAlphabetLetters.map((letter) {
           final available = availableLetters.contains(letter);
-          return GestureDetector(
-            onTap: available ? () => onLetterTap(letter) : null,
-            child: SizedBox(
-              height: 18,
-              child: Text(
-                letter,
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: available ? Colors.blue[700] : Colors.grey[400],
-                  height: 1.1,
+          return Expanded(
+            child: GestureDetector(
+              onTap: available ? () => onLetterTap(letter) : null,
+              child: Center(
+                child: Text(
+                  letter,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: available ? Colors.blue[700] : Colors.grey[400],
+                    height: 1.0,
+                  ),
                 ),
               ),
             ),
