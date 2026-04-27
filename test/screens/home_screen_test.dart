@@ -75,14 +75,14 @@ void main() {
       expect(scaffold.drawer, isA<AppDrawer>());
     });
 
-    testWidgets('shows "Browse by categories" button', (tester) async {
+    testWidgets('shows "Browse by Categories" button', (tester) async {
       await tester.pumpWidget(_buildApp(AppState()));
-      expect(find.text('Browse by categories'), findsOneWidget);
+      expect(find.text('Browse by Categories'), findsOneWidget);
     });
 
-    testWidgets('shows "Search by species name" button', (tester) async {
+    testWidgets('shows "Search by Species Name" button', (tester) async {
       await tester.pumpWidget(_buildApp(AppState()));
-      expect(find.text('Search by species name'), findsOneWidget);
+      expect(find.text('Search by Species Name'), findsOneWidget);
     });
 
     testWidgets('shows copyright footer', (tester) async {
@@ -92,7 +92,7 @@ void main() {
 
     testWidgets('renders all superCat labels in radio column', (tester) async {
       await tester.pumpWidget(_buildApp(AppState()));
-      for (final label in ['Fish', 'Invertebrates', 'Sponges', 'Corals', 'Algae', 'Mammals and Reptiles']) {
+      for (final label in ['Fish', 'Invertebrates', 'Sponges', 'Corals', 'Algae', 'Others']) {
         expect(find.text(label), findsOneWidget);
       }
     });
@@ -166,15 +166,15 @@ void main() {
     testWidgets('"Browse by categories" navigates to /browse', (tester) async {
       await _mount(tester, _buildWithRouter(AppState()));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Browse by categories'));
+      await tester.tap(find.text('Browse by Categories'));
       await tester.pumpAndSettle();
       expect(find.text('browse'), findsOneWidget);
     });
 
-    testWidgets('"Search by species name" navigates to /search', (tester) async {
+    testWidgets('"Search by Species Name" navigates to /search', (tester) async {
       await _mount(tester, _buildWithRouter(AppState()));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Search by species name'));
+      await tester.tap(find.text('Search by Species Name'));
       await tester.pumpAndSettle();
       expect(find.text('search'), findsOneWidget);
     });
@@ -209,7 +209,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Browse by categories'));
+      await tester.tap(find.text('Browse by Categories'));
       await tester.pumpAndSettle();
       expect(pushedUri, contains('region=2'));
       expect(pushedUri, contains('supercat=Corals'));

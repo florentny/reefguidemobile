@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import '../providers/app_state.dart';
 import '../services/data_service.dart';
 
-
 class CategoryList extends StatefulWidget {
   const CategoryList({super.key});
 
@@ -43,7 +42,6 @@ class _CategoryListState extends State<CategoryList> {
     _searchController.dispose();
     super.dispose();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -88,16 +86,16 @@ class _CategoryListState extends State<CategoryList> {
                   hintText: 'Search…',
                   hintStyle: const TextStyle(fontSize: 12),
                   prefixIcon: const Icon(Icons.search, size: 16),
-                  prefixIconConstraints: const BoxConstraints(minWidth: 32, minHeight: 24),
+                  prefixIconConstraints: const BoxConstraints(minWidth: 32, minHeight: 22),
                   suffixIcon: _searchQuery.isNotEmpty
                       ? IconButton(
-                          icon: const Icon(Icons.clear, size: 14),
+                          icon: const Icon(Icons.clear, size: 16),
                           padding: EdgeInsets.zero,
-                          constraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+                          constraints: const BoxConstraints(minWidth: 28, minHeight: 22),
                           onPressed: () => _searchController.clear(),
                         )
                       : null,
-                  suffixIconConstraints: const BoxConstraints(minWidth: 28, minHeight: 28),
+                  suffixIconConstraints: const BoxConstraints(minWidth: 28, minHeight: 22),
                   isDense: true,
                   contentPadding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
                   border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
@@ -110,9 +108,7 @@ class _CategoryListState extends State<CategoryList> {
                   ? const Center(child: Text('No results', style: TextStyle(fontSize: 12)))
                   : ListView.builder(
                       controller: _scrollController,
-                      padding: EdgeInsets.only(
-                        bottom: MediaQuery.paddingOf(context).bottom,
-                      ),
+                      padding: EdgeInsets.only(bottom: MediaQuery.paddingOf(context).bottom),
                       itemCount: filtered.length,
                       itemBuilder: (context, index) {
                         final entry = filtered[index];
@@ -190,4 +186,3 @@ class _CategoryRow extends StatelessWidget {
     );
   }
 }
-

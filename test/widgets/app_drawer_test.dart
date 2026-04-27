@@ -51,7 +51,7 @@ void main() {
     testWidgets('renders the Search species tile', (tester) async {
       await tester.pumpWidget(_buildApp());
       await _openDrawer(tester);
-      expect(find.text('Search species'), findsOneWidget);
+      expect(find.text('Search Species'), findsOneWidget);
       expect(find.byIcon(Icons.search), findsOneWidget);
     });
 
@@ -88,7 +88,7 @@ void main() {
     testWidgets('tapping Search species navigates to /search', (tester) async {
       await tester.pumpWidget(_buildApp());
       await _openDrawer(tester);
-      await tester.tap(find.text('Search species'));
+      await tester.tap(find.text('Search Species'));
       await tester.pumpAndSettle();
       expect(find.text('Search'), findsOneWidget);
     });

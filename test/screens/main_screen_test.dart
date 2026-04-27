@@ -60,7 +60,7 @@ void main() {
       // Tap the superCat dropdown (first AppBarDropdown — shows current superCat label)
       await tester.tap(find.text('Fish'));
       await tester.pumpAndSettle();
-      for (final label in ['Fish', 'Invertebrates', 'Sponges', 'Corals', 'Algae', 'Mammals and Reptiles']) {
+      for (final label in ['Fish', 'Invertebrates', 'Sponges', 'Corals', 'Algae', 'Others']) {
         expect(find.text(label), findsAtLeastNWidgets(1));
       }
     });
@@ -107,7 +107,7 @@ void main() {
 
       await tester.tap(find.text('All Regions'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Caribbean and Florida').last);
+      await tester.tap(find.text('Caribbean').last);
       await tester.pump();
       await _settle(tester);
 

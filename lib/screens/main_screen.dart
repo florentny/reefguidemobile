@@ -7,7 +7,6 @@ import '../widgets/appbar_dropdown.dart';
 import '../widgets/category_list.dart';
 import '../widgets/species_list.dart';
 
-
 class MainScreen extends StatelessWidget {
   const MainScreen({super.key});
 
@@ -30,9 +29,10 @@ class _ReefAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       backgroundColor: Colors.blue[700],
       foregroundColor: Colors.white,
+      titleSpacing: 0,
       title: const Row(
         mainAxisSize: MainAxisSize.min,
-        children: [_SuperCatDropdown(), SizedBox(width: 8), _RegionDropdown()],
+        children: [_SuperCatDropdown(), SizedBox(width: 2), _RegionDropdown()],
       ),
       centerTitle: false,
     );
