@@ -18,16 +18,10 @@ class TaxonomyTreeWidget extends StatelessWidget {
       future: DataService.instance.getTaxonomy(region),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Padding(
-            padding: EdgeInsets.all(16),
-            child: CircularProgressIndicator(),
-          );
+          return const Padding(padding: EdgeInsets.all(16), child: CircularProgressIndicator());
         }
         if (snapshot.hasError || !snapshot.hasData) {
-          return const Padding(
-            padding: EdgeInsets.all(16),
-            child: Text('Taxonomy unavailable'),
-          );
+          return const Padding(padding: EdgeInsets.all(16), child: Text('Taxonomy unavailable'));
         }
 
         final root = snapshot.data!;
@@ -36,10 +30,7 @@ class TaxonomyTreeWidget extends StatelessWidget {
         if (path == null || path.isEmpty) {
           return const Padding(
             padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Text(
-              'Taxonomy path not found',
-              style: TextStyle(color: Colors.grey, fontSize: 12),
-            ),
+            child: Text('Taxonomy path not found', style: TextStyle(color: Colors.grey, fontSize: 12)),
           );
         }
 
@@ -50,10 +41,9 @@ class TaxonomyTreeWidget extends StatelessWidget {
             children: [
               Text(
                 'Taxonomy',
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.blue[700],
-                ),
+                style: Theme.of(
+                  context,
+                ).textTheme.titleSmall?.copyWith(fontWeight: FontWeight.bold, color: Colors.blue[700]),
               ),
               const SizedBox(height: 8),
               _TaxonomyPathList(path: path, speciesId: speciesId),
@@ -88,11 +78,7 @@ class _TaxonomyPathList extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             text: TextSpan(
-              style: const TextStyle(
-                fontSize: 13,
-                color: Colors.black87,
-                fontFamily: 'monospace',
-              ),
+              style: const TextStyle(fontSize: 13, color: Colors.black87, fontFamily: 'monospace'),
               children: [
                 if (prefix.isNotEmpty)
                   TextSpan(
@@ -124,9 +110,7 @@ class _TaxonomyPathList extends StatelessWidget {
     final leafIndent = (path.length - 1) * 5.0;
     // Find the SpeciesRef in the last path node
     final lastNode = path.last;
-    final speciesRef = lastNode.species
-        .where((s) => s.id == speciesId)
-        .firstOrNull;
+    final speciesRef = lastNode.species.where((s) => s.id == speciesId).firstOrNull;
 
     if (speciesRef != null) {
       items.add(
@@ -140,20 +124,11 @@ class _TaxonomyPathList extends StatelessWidget {
               children: [
                 TextSpan(
                   text: '\u2514 ',
-                  style: TextStyle(
-                    color: Colors.grey[400],
-                    fontFamily: 'monospace',
-                  ),
+                  style: TextStyle(color: Colors.grey[400], fontFamily: 'monospace'),
                 ),
                 TextSpan(
-                  text: speciesRef.sname.isNotEmpty
-                      ? speciesRef.sname
-                      : speciesRef.name,
-                  style: TextStyle(
-                    fontStyle: FontStyle.italic,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.teal[700],
-                  ),
+                  text: speciesRef.sname.isNotEmpty ? speciesRef.sname : speciesRef.name,
+                  style: TextStyle(fontStyle: FontStyle.italic, fontWeight: FontWeight.w600, color: Colors.teal[700]),
                 ),
               ],
             ),
@@ -162,9 +137,6 @@ class _TaxonomyPathList extends StatelessWidget {
       );
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: items,
-    );
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: items);
   }
 }

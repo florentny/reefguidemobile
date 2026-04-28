@@ -18,43 +18,34 @@ class SpeciesList extends StatelessWidget {
 
     if (category == null) {
       return const Center(
-        child: Text(
-          'Select a category',
-          style: TextStyle(fontSize: 14, color: Colors.grey),
-        ),
+        child: Text('Select a category', style: TextStyle(fontSize: 14, color: Colors.grey)),
       );
     }
 
     return FutureBuilder<List<SpeciesGroup>>(
       key: ValueKey('$region-$superCat-$category'),
-      future: DataService.instance.getSpeciesGroupedForCategory(
-        region,
-        category,
-        superCat,
-      ),
+      future: DataService.instance.getSpeciesGroupedForCategory(region, category, superCat),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         }
         if (snapshot.hasError) {
           return Center(
-            child: Text(
-              'Error loading species',
-              style: TextStyle(color: Colors.red[700]),
-            ),
+            child: Text('Error loading species', style: TextStyle(color: Colors.red[700])),
           );
         }
         final groups = snapshot.data ?? [];
-        final totalCount = {for (final g in groups) for (final r in g.species) r.id}.length;
+        final totalCount = {
+          for (final g in groups)
+            for (final r in g.species) r.id,
+        }.length;
 
         // Flatten into a scrollable item list.
         // Item types: _SectionHeader (SpeciesGroup), SpeciesRef.
 
         // Only emit section headers when there are multiple groups, or when the
         // single group has a named family/subfamily.
-        final showSections =
-            groups.length > 1 ||
-            (groups.length == 1 && groups.first.groupName != null);
+        final showSections = groups.length > 1 || (groups.length == 1 && groups.first.groupName != null);
 
         final items = <Object>[];
 
@@ -78,11 +69,7 @@ class SpeciesList extends StatelessWidget {
           itemBuilder: (context, index) {
             final item = items[index];
             if (item is SpeciesGroup) {
-              return _FamilyHeader(
-                group: item,
-                totalCount: totalCount,
-                selectedCategory: category,
-              );
+              return _FamilyHeader(group: item, totalCount: totalCount, selectedCategory: category);
             }
             final ref = item as SpeciesRef;
             return _SpeciesCard(
@@ -96,8 +83,7 @@ class SpeciesList extends StatelessWidget {
                     queryParameters: {
                       'region': '${appState.selectedRegion}',
                       'supercat': appState.selectedSuperCat,
-                      if (appState.selectedCategory != null)
-                        'category': appState.selectedCategory!,
+                      if (appState.selectedCategory != null) 'category': appState.selectedCategory!,
                     },
                   ).toString(),
                 );
@@ -111,7 +97,7 @@ class SpeciesList extends StatelessWidget {
 }
 
 // -----------------------------------------------------------------------------
-// Family / Subfamily section header
+// Family / Subfamily / Tribe section header
 // -----------------------------------------------------------------------------
 
 class _FamilyHeader extends StatelessWidget {
@@ -119,31 +105,29 @@ class _FamilyHeader extends StatelessWidget {
   final int totalCount;
   final String? selectedCategory;
 
-  const _FamilyHeader({
-    required this.group,
-    required this.totalCount,
-    required this.selectedCategory,
-  });
+  const _FamilyHeader({required this.group, required this.totalCount, required this.selectedCategory});
 
   @override
   Widget build(BuildContext context) {
-    final isSubfamily =
-        group.groupRank == 'Subfamily' && group.parentName != null;
+    final isTribe = group.groupRank == 'Tribe' && group.parentName != null;
+    final isSubfamily = group.groupRank == 'Subfamily' && group.parentName != null;
 
-    // Effective category: subfamily's takes precedence over family's.
-    final String? effectiveCategory = isSubfamily
+    // Effective category: deepest available rank's category takes precedence.
+    final String? effectiveCategory = isTribe
+        ? (group.groupCategory ?? group.parentCategory ?? group.grandparentCategory)
+        : isSubfamily
         ? (group.groupCategory ?? group.parentCategory)
         : group.groupCategory;
 
     // Show the category above the header only when it differs from the
     // currently selected category in the left panel.
-    final String? categoryAbove =
-        (effectiveCategory != null && effectiveCategory != selectedCategory)
+    final String? categoryAbove = (effectiveCategory != null && effectiveCategory != selectedCategory)
         ? effectiveCategory
         : null;
 
     // Genus group category overrides the title when all species share one.
     final String? title = group.genusGroupCategory ?? categoryAbove;
+    final String? displayTitle = title != selectedCategory ? title : null;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -153,19 +137,16 @@ class _FamilyHeader extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (title != null)
+          if (displayTitle != null)
             Padding(
               padding: const EdgeInsets.only(bottom: 4),
               child: Text(
-                title,
-                style: TextStyle(
-                  fontSize: 13,
-                  color: Colors.white.withValues(alpha: 1.0),
-                  fontWeight: FontWeight.w600,
-                ),
+                displayTitle,
+                style: TextStyle(fontSize: 13, color: Colors.white.withValues(alpha: 1.0), fontWeight: FontWeight.w600),
               ),
             ),
-          if (isSubfamily)
+          // Family row — shown for Subfamily and Tribe
+          if (isSubfamily || isTribe)
             RichText(
               text: TextSpan(
                 style: TextStyle(
@@ -175,27 +156,64 @@ class _FamilyHeader extends StatelessWidget {
                 ),
                 children: [
                   TextSpan(
-                    text: group.parentName!,
+                    text: isTribe ? group.grandparentName! : group.parentName!,
                     style: const TextStyle(fontStyle: FontStyle.italic),
                   ),
                   const TextSpan(
                     text: '  (Family)',
-                    style: TextStyle(
-                      fontStyle: FontStyle.normal,
-                      color: Colors.white70,
-                    ),
+                    style: TextStyle(fontStyle: FontStyle.normal, color: Colors.white70),
                   ),
                 ],
               ),
             ),
+          // Subfamily row — shown for Tribe only
+          if (isTribe)
+            Padding(
+              padding: const EdgeInsets.only(left: 8),
+              child: RichText(
+                text: TextSpan(
+                  children: [
+                    TextSpan(
+                      text: '└ ',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Colors.white.withValues(alpha: 0.6),
+                        fontFamily: 'monospace',
+                        fontWeight: FontWeight.normal,
+                      ),
+                    ),
+                    TextSpan(
+                      text: group.parentName!,
+                      style: const TextStyle(
+                        fontSize: 11,
+                        fontStyle: FontStyle.italic,
+                        fontWeight: FontWeight.normal,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const TextSpan(
+                      text: '  (Subfamily)',
+                      style: TextStyle(fontSize: 11, fontWeight: FontWeight.normal, color: Colors.white70),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          // Group name row (Family / Subfamily / Tribe)
           Padding(
-            padding: EdgeInsets.only(left: isSubfamily ? 16 : 0),
+            padding: EdgeInsets.only(
+              left: isTribe
+                  ? 32
+                  : isSubfamily
+                  ? 16
+                  : 0,
+            ),
             child: RichText(
               text: TextSpan(
                 children: [
-                  if (isSubfamily)
+                  if (isSubfamily || isTribe)
                     TextSpan(
-                      text: '\u2514 ', // └
+                      text: '└ ',
                       style: TextStyle(
                         fontSize: 11,
                         color: Colors.white.withValues(alpha: 0.6),
@@ -230,10 +248,7 @@ class _FamilyHeader extends StatelessWidget {
               padding: const EdgeInsets.only(top: 2),
               child: Text(
                 '${group.species.map((r) => r.id).toSet().length} species',
-                style: TextStyle(
-                  fontSize: 11,
-                  color: Colors.white.withValues(alpha: 0.75),
-                ),
+                style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.75)),
               ),
             ),
         ],
@@ -267,11 +282,7 @@ class _SpeciesCard extends StatelessWidget {
               fit: BoxFit.cover,
               errorBuilder: (context, error, stackTrace) => Container(
                 color: Colors.grey[200],
-                child: const Icon(
-                  Icons.camera_alt,
-                  color: Colors.grey,
-                  size: 40,
-                ),
+                child: const Icon(Icons.camera_alt, color: Colors.grey, size: 40),
               ),
             ),
           ),
@@ -283,21 +294,14 @@ class _SpeciesCard extends StatelessWidget {
               children: [
                 Text(
                   ref.name,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w500,
-                  ),
+                  style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
                 if (ref.sname.isNotEmpty)
                   Text(
                     ref.sname,
-                    style: const TextStyle(
-                      fontSize: 11,
-                      fontStyle: FontStyle.italic,
-                      color: Colors.black54,
-                    ),
+                    style: const TextStyle(fontSize: 11, fontStyle: FontStyle.italic, color: Colors.black54),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),

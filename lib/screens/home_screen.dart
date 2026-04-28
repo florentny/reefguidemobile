@@ -19,7 +19,7 @@ class HomeScreen extends StatelessWidget {
           child: Column(
             children: [
               const Padding(
-                padding: EdgeInsets.fromLTRB(24, 2, 24, 24),
+                padding: EdgeInsets.fromLTRB(24, 2, 24, 10),
                 child: Text(
                   "Florent's guide to the marine life of the tropical reefs",
                   textAlign: TextAlign.center,
@@ -49,7 +49,7 @@ class HomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               const _SelectorsRow(),
-              const SizedBox(height: 16),
+              const SizedBox(height: 30),
               ElevatedButton(
                 onPressed: () {
                   final s = context.read<AppState>();
@@ -61,28 +61,30 @@ class HomeScreen extends StatelessWidget {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
                   foregroundColor: Colors.blue[900],
-                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 16),
+                  padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 6),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-                  textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                  textStyle: const TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
                 ),
-                child: const Text('Browse by categories'),
+                child: const Text('Browse by Categories'),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: () => context.push('/search'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
                   foregroundColor: Colors.blue[900],
-                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 16),
+                  padding: const EdgeInsets.symmetric(horizontal: 25, vertical: 6),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                     side: const BorderSide(color: Colors.white54),
                   ),
-                  textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+                  textStyle: const TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
                   elevation: 0,
                 ),
-                child: const Text('Search by species name'),
+                child: const Text('Search by Species Name'),
               ),
+              const SizedBox(height: 10),
+
               const SizedBox(height: 24),
               const Padding(
                 padding: EdgeInsets.only(bottom: 12),
@@ -146,7 +148,7 @@ class _RadioColumn<T> extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(color: Colors.white.withAlpha(25), borderRadius: BorderRadius.circular(12)),
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -183,7 +185,7 @@ class _RadioColumn<T> extends StatelessWidget {
                         labelOf(v),
                         style: TextStyle(
                           color: isSelected ? Colors.white : Colors.white70,
-                          fontSize: 14,
+                          fontSize: 12,
                           fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
                         ),
                         overflow: TextOverflow.ellipsis,

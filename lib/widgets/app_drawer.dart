@@ -29,10 +29,18 @@ class AppDrawer extends StatelessWidget {
           ),
           ListTile(
             leading: const Icon(Icons.search),
-            title: const Text('Search species'),
+            title: const Text('Search Species'),
             onTap: () {
               Navigator.pop(context);
               context.push('/search');
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.account_tree_outlined),
+            title: const Text('Browse the Taxonomy Tree'),
+            onTap: () {
+              Navigator.pop(context);
+              context.push('/taxonomy');
             },
           ),
           ListTile(

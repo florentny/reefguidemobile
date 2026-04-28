@@ -205,7 +205,7 @@ class _SearchScreenState extends State<SearchScreen> {
     final results = <_SearchResult>[];
     for (final s in _allSpecies) {
       final info = _regionMap[s.id];
-      if (info == null || info.superCat != superCat) continue;
+      if (info == null || (superCat != 'All Species' && info.superCat != superCat)) continue;
       if (q.isNotEmpty &&
           !s.name.toLowerCase().contains(q) &&
           !s.sciName.toLowerCase().contains(q) &&
@@ -256,18 +256,18 @@ class _SearchScreenState extends State<SearchScreen> {
               autofocus: false,
               decoration: InputDecoration(
                 hintText: 'Search by common or scientific name…',
-                prefixIcon: const Icon(Icons.search, size: 20),
-                prefixIconConstraints: const BoxConstraints(minWidth: 36, minHeight: 30),
+                prefixIcon: const Icon(Icons.search, size: 18),
+                prefixIconConstraints: const BoxConstraints(minWidth: 36, minHeight: 14),
                 suffixIcon: _query.isNotEmpty
                     ? IconButton(
                         icon: const Icon(Icons.clear, size: 18),
                         onPressed: _clearQuery,
-                        constraints: const BoxConstraints(minWidth: 36, minHeight: 30),
+                        constraints: const BoxConstraints(minWidth: 36, minHeight: 14),
                       )
                     : null,
                 suffixIconConstraints: const BoxConstraints(minWidth: 36, minHeight: 3),
                 isDense: true,
-                contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 0),
                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(18)),
               ),
               onChanged: _onQueryChanged,
@@ -375,10 +375,11 @@ class _SearchAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       backgroundColor: Colors.blue[700],
       foregroundColor: Colors.white,
+      titleSpacing: 0,
       leading: IconButton(icon: const Icon(Icons.arrow_back), onPressed: onBack),
       title: const Row(
         mainAxisSize: MainAxisSize.min,
-        children: [_SuperCatDropdown(), SizedBox(width: 8), _RegionDropdown()],
+        children: [_SuperCatDropdown(), SizedBox(width: 2), _RegionDropdown()],
       ),
       centerTitle: false,
     );

@@ -10,9 +10,9 @@ import '../helpers/mock_assets.dart';
 
 // Plain MaterialApp — fine for tests that don't trigger navigation.
 Widget _buildApp(AppState state) => ChangeNotifierProvider<AppState>.value(
-      value: state,
-      child: const MaterialApp(home: HomeScreen()),
-    );
+  value: state,
+  child: const MaterialApp(home: HomeScreen()),
+);
 
 // GoRouter wrapper — required when tapping buttons that call context.push().
 Widget _buildWithRouter(AppState state, {List<GoRoute> extra = const []}) {
@@ -20,8 +20,14 @@ Widget _buildWithRouter(AppState state, {List<GoRoute> extra = const []}) {
     initialLocation: '/',
     routes: [
       GoRoute(path: '/', builder: (_, __) => const HomeScreen()),
-      GoRoute(path: '/browse', builder: (_, __) => const Scaffold(body: Text('browse'))),
-      GoRoute(path: '/search', builder: (_, __) => const Scaffold(body: Text('search'))),
+      GoRoute(
+        path: '/browse',
+        builder: (_, __) => const Scaffold(body: Text('browse')),
+      ),
+      GoRoute(
+        path: '/search',
+        builder: (_, __) => const Scaffold(body: Text('search')),
+      ),
       ...extra,
     ],
   );
@@ -54,10 +60,7 @@ void main() {
 
     testWidgets('renders the title text', (tester) async {
       await tester.pumpWidget(_buildApp(AppState()));
-      expect(
-        find.text("Florent's guide to the marine life of the tropical reefs"),
-        findsOneWidget,
-      );
+      expect(find.text("Florent's guide to the marine life of the tropical reefs"), findsOneWidget);
     });
 
     testWidgets('scaffold background is blue[900]', (tester) async {
@@ -72,14 +75,14 @@ void main() {
       expect(scaffold.drawer, isA<AppDrawer>());
     });
 
-    testWidgets('shows "Browse by categories" button', (tester) async {
+    testWidgets('shows "Browse by Categories" button', (tester) async {
       await tester.pumpWidget(_buildApp(AppState()));
-      expect(find.text('Browse by categories'), findsOneWidget);
+      expect(find.text('Browse by Categories'), findsOneWidget);
     });
 
-    testWidgets('shows "Search by species name" button', (tester) async {
+    testWidgets('shows "Search by Species Name" button', (tester) async {
       await tester.pumpWidget(_buildApp(AppState()));
-      expect(find.text('Search by species name'), findsOneWidget);
+      expect(find.text('Search by Species Name'), findsOneWidget);
     });
 
     testWidgets('shows copyright footer', (tester) async {
@@ -163,15 +166,15 @@ void main() {
     testWidgets('"Browse by categories" navigates to /browse', (tester) async {
       await _mount(tester, _buildWithRouter(AppState()));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Browse by categories'));
+      await tester.tap(find.text('Browse by Categories'));
       await tester.pumpAndSettle();
       expect(find.text('browse'), findsOneWidget);
     });
 
-    testWidgets('"Search by species name" navigates to /search', (tester) async {
+    testWidgets('"Search by Species Name" navigates to /search', (tester) async {
       await _mount(tester, _buildWithRouter(AppState()));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Search by species name'));
+      await tester.tap(find.text('Search by Species Name'));
       await tester.pumpAndSettle();
       expect(find.text('search'), findsOneWidget);
     });
@@ -192,7 +195,10 @@ void main() {
               return const Scaffold(body: Text('browse'));
             },
           ),
-          GoRoute(path: '/search', builder: (_, __) => const Scaffold(body: Text('search'))),
+          GoRoute(
+            path: '/search',
+            builder: (_, __) => const Scaffold(body: Text('search')),
+          ),
         ],
       );
       await _mount(
@@ -203,7 +209,7 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Browse by categories'));
+      await tester.tap(find.text('Browse by Categories'));
       await tester.pumpAndSettle();
       expect(pushedUri, contains('region=2'));
       expect(pushedUri, contains('supercat=Corals'));

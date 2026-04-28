@@ -2,16 +2,24 @@ import 'package:flutter/foundation.dart';
 
 const List<String> regionNames = [
   'All Regions',
-  'Caribbean and Florida',
+  'Caribbean',
   'Indo-Pacific',
-  'South Florida',
+  'Florida',
   'Hawaii',
   'Eastern Pacific',
   'French Polynesia',
 ];
 
 class AppState extends ChangeNotifier {
-  static const List<String> superCats = ['Fish', 'Invertebrates', 'Sponges', 'Corals', 'Algae', 'Mammals'];
+  static const List<String> superCats = [
+    'Fish',
+    'Invertebrates',
+    'Sponges',
+    'Corals',
+    'Algae',
+    'Mammals',
+    'All Species',
+  ];
 
   static String superCatLabel(String superCat) => superCat == 'Mammals' ? 'Others' : superCat;
 

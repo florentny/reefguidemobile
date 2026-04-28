@@ -10,9 +10,9 @@ import 'package:reefmobile/widgets/species_list.dart';
 import '../helpers/mock_assets.dart';
 
 Widget _buildApp(AppState state) => ChangeNotifierProvider<AppState>.value(
-      value: state,
-      child: MaterialApp(home: const MainScreen()),
-    );
+  value: state,
+  child: MaterialApp(home: const MainScreen()),
+);
 
 Future<void> _mount(WidgetTester tester, AppState state) async {
   await tester.runAsync(() async {
@@ -107,7 +107,7 @@ void main() {
 
       await tester.tap(find.text('All Regions'));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Caribbean and Florida').last);
+      await tester.tap(find.text('Caribbean').last);
       await tester.pump();
       await _settle(tester);
 

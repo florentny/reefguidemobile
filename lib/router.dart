@@ -10,6 +10,7 @@ import 'screens/main_screen.dart';
 import 'screens/search_screen.dart';
 import 'screens/species_screen.dart';
 import 'screens/splash_screen.dart';
+import 'screens/taxonomy_screen.dart';
 
 final appRouter = GoRouter(
   observers: [],
@@ -35,6 +36,16 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/search',
       builder: (context, state) => const SearchScreen(),
+      routes: [
+        GoRoute(
+          path: 'species/:id',
+          builder: (context, state) => const SpeciesScreen(),
+        ),
+      ],
+    ),
+    GoRoute(
+      path: '/taxonomy',
+      builder: (context, state) => const TaxonomyScreen(),
       routes: [
         GoRoute(
           path: 'species/:id',
