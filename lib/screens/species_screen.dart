@@ -546,7 +546,7 @@ class _DetailsSection extends StatelessWidget {
                 if (species.endemic) '(Endemic)',
               ].join(' '),
             ),
-          if (species.synonyms.isNotEmpty) _DetailRow(label: 'Synonyms', value: species.synonyms),
+          if (species.synonyms.isNotEmpty) _DetailRow(label: 'Synonyms', value: species.synonyms, italic: true),
           if (species.aka.isNotEmpty) _DetailRow(label: 'Also known as', value: species.aka),
           if (species.note.isNotEmpty)
             Padding(
@@ -597,8 +597,9 @@ List<TextSpan> _parseItalicSpans(String text) {
 class _DetailRow extends StatelessWidget {
   final String label;
   final String value;
+  final bool italic;
 
-  const _DetailRow({required this.label, required this.value});
+  const _DetailRow({required this.label, required this.value, this.italic = false});
 
   @override
   Widget build(BuildContext context) {
@@ -612,7 +613,10 @@ class _DetailRow extends StatelessWidget {
               text: '$label: ',
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
-            TextSpan(text: value),
+            TextSpan(
+              text: value,
+              style: italic ? const TextStyle(fontStyle: FontStyle.italic) : null,
+            ),
           ],
         ),
       ),
