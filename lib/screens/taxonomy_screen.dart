@@ -341,7 +341,7 @@ class _TaxonomyScreenState extends State<TaxonomyScreen> {
     final ids = speciesItems.map((s) => s.species.id).toList();
 
     return Scaffold(
-      appBar: _TaxonomyAppBar(onBack: () => context.pop()),
+      appBar: _TaxonomyAppBar(onBack: () => context.canPop() ? context.pop() : context.go('/')),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
           : Column(
@@ -390,6 +390,7 @@ class _TaxonomyScreenState extends State<TaxonomyScreen> {
                 ConstrainedBox(
                   constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * 0.30),
                   child: SingleChildScrollView(
+                    padding: const EdgeInsets.only(bottom: 18),
                     child: Column(
                       children: treeItems.map((item) {
                         final isExpanded = _expandedNodes.contains(item.node);
@@ -528,7 +529,11 @@ class _RegionDropdown extends StatelessWidget {
       value: appState.selectedRegion,
       items: List.generate(regionNames.length, (i) => i),
       labelOf: (i) => regionNames[i],
-      onChanged: (v) => context.read<AppState>().setRegion(v),
+      onChanged: (v) {
+        final s = context.read<AppState>();
+        s.setRegion(v);
+        context.replace('/taxonomy?region=$v&supercat=${Uri.encodeComponent(s.selectedSuperCat)}');
+      },
     );
   }
 }
@@ -543,7 +548,11 @@ class _SuperCatDropdown extends StatelessWidget {
       value: appState.selectedSuperCat,
       items: AppState.superCats,
       labelOf: AppState.superCatLabel,
-      onChanged: (v) => context.read<AppState>().setSuperCat(v),
+      onChanged: (v) {
+        final s = context.read<AppState>();
+        s.setSuperCat(v);
+        context.replace('/taxonomy?region=${s.selectedRegion}&supercat=${Uri.encodeComponent(v)}');
+      },
     );
   }
 }

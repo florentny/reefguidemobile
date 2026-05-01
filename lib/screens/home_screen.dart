@@ -69,7 +69,10 @@ class HomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               ElevatedButton(
-                onPressed: () => context.push('/search'),
+                onPressed: () {
+                  final s = context.read<AppState>();
+                  context.push('/search?region=${s.selectedRegion}&supercat=${Uri.encodeComponent(s.selectedSuperCat)}');
+                },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
                   foregroundColor: Colors.blue[900],

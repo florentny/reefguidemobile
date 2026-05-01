@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import '../providers/app_state.dart';
 
 class AppDrawer extends StatelessWidget {
   const AppDrawer({super.key});
@@ -32,7 +35,8 @@ class AppDrawer extends StatelessWidget {
             title: const Text('Search Species'),
             onTap: () {
               Navigator.pop(context);
-              context.push('/search');
+              final s = context.read<AppState>();
+              context.push('/search?region=${s.selectedRegion}&supercat=${Uri.encodeComponent(s.selectedSuperCat)}');
             },
           ),
           ListTile(
@@ -40,7 +44,8 @@ class AppDrawer extends StatelessWidget {
             title: const Text('Browse the Taxonomy Tree'),
             onTap: () {
               Navigator.pop(context);
-              context.push('/taxonomy');
+              final s = context.read<AppState>();
+              context.push('/taxonomy?region=${s.selectedRegion}&supercat=${Uri.encodeComponent(s.selectedSuperCat)}');
             },
           ),
           ListTile(
@@ -59,7 +64,7 @@ class AppDrawer extends StatelessWidget {
             title: const Text('Desktop Version'),
             onTap: () async {
               Navigator.pop(context);
-              final uri = Uri.parse('https://reefguide.org');
+              final uri = Uri.parse('https://reefguide.org?desktop=true');
               if (await canLaunchUrl(uri)) {
                 await launchUrl(uri, mode: LaunchMode.externalApplication);
               }

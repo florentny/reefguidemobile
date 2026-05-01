@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/app_state.dart';
@@ -49,7 +50,11 @@ class _RegionDropdown extends StatelessWidget {
       value: appState.selectedRegion,
       items: List.generate(regionNames.length, (i) => i),
       labelOf: (i) => regionNames[i],
-      onChanged: (v) => context.read<AppState>().setRegion(v),
+      onChanged: (v) {
+        final s = context.read<AppState>();
+        s.setRegion(v);
+        context.replace('/browse?region=$v&supercat=${Uri.encodeComponent(s.selectedSuperCat)}');
+      },
     );
   }
 }
@@ -64,7 +69,11 @@ class _SuperCatDropdown extends StatelessWidget {
       value: appState.selectedSuperCat,
       items: AppState.superCats,
       labelOf: AppState.superCatLabel,
-      onChanged: (v) => context.read<AppState>().setSuperCat(v),
+      onChanged: (v) {
+        final s = context.read<AppState>();
+        s.setSuperCat(v);
+        context.replace('/browse?region=${s.selectedRegion}&supercat=${Uri.encodeComponent(v)}');
+      },
     );
   }
 }

@@ -36,7 +36,14 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: '/search',
-      builder: (context, state) => const SearchScreen(),
+      builder: (context, state) {
+        final p = state.uri.queryParameters;
+        return _StateInitializer(
+          region: int.tryParse(p['region'] ?? '') ?? 0,
+          supercat: p['supercat'] ?? 'Fish',
+          child: const SearchScreen(),
+        );
+      },
       routes: [
         GoRoute(
           path: 'species/:id',
@@ -46,7 +53,14 @@ final appRouter = GoRouter(
     ),
     GoRoute(
       path: '/taxonomy',
-      builder: (context, state) => const TaxonomyScreen(),
+      builder: (context, state) {
+        final p = state.uri.queryParameters;
+        return _StateInitializer(
+          region: int.tryParse(p['region'] ?? '') ?? 0,
+          supercat: p['supercat'] ?? 'Fish',
+          child: const TaxonomyScreen(),
+        );
+      },
       routes: [
         GoRoute(
           path: 'species/:id',

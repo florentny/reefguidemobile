@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+import 'package:reefmobile/providers/app_state.dart';
 import 'package:reefmobile/widgets/app_drawer.dart';
 
 Widget _buildApp() {
@@ -19,12 +21,19 @@ Widget _buildApp() {
         builder: (_, __) => const Scaffold(body: Text('Search')),
       ),
       GoRoute(
+        path: '/taxonomy',
+        builder: (_, __) => const Scaffold(body: Text('Taxonomy')),
+      ),
+      GoRoute(
         path: '/info',
         builder: (_, __) => const Scaffold(body: Text('Info')),
       ),
     ],
   );
-  return MaterialApp.router(routerConfig: router);
+  return ChangeNotifierProvider(
+    create: (_) => AppState(),
+    child: MaterialApp.router(routerConfig: router),
+  );
 }
 
 Future<void> _openDrawer(WidgetTester tester) async {
