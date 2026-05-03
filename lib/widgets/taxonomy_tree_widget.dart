@@ -73,12 +73,12 @@ class _TaxonomyPathList extends StatelessWidget {
 
       items.add(
         Padding(
-          padding: EdgeInsets.only(left: indent, bottom: 2),
+          padding: EdgeInsets.only(left: indent, bottom: 1, top: 1),
           child: RichText(
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             text: TextSpan(
-              style: const TextStyle(fontSize: 13, color: Colors.black87, fontFamily: 'monospace'),
+              style: const TextStyle(fontSize: 13, height: 1.2, color: Colors.black87, fontFamily: 'monospace'),
               children: [
                 if (prefix.isNotEmpty)
                   TextSpan(
@@ -115,12 +115,12 @@ class _TaxonomyPathList extends StatelessWidget {
     if (speciesRef != null) {
       items.add(
         Padding(
-          padding: EdgeInsets.only(left: leafIndent, bottom: 2),
+          padding: EdgeInsets.only(left: leafIndent, bottom: 1, top: 1),
           child: RichText(
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             text: TextSpan(
-              style: const TextStyle(fontSize: 13),
+              style: const TextStyle(fontSize: 13, height: 1.2),
               children: [
                 TextSpan(
                   text: '\u2514 ',

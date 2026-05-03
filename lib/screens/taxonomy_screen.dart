@@ -78,9 +78,12 @@ class _TaxonomyScreenState extends State<TaxonomyScreen> {
 
   final Set<TaxonomyNode> _expandedNodes = {};
   TaxonomyNode? _selectedNode;
+  TaxonomyNode? _searchMatchNode;
 
   final _scrollController = ScrollController();
+  final _treeScrollController = ScrollController();
   final _searchController = TextEditingController();
+  final _matchedNodeKey = GlobalKey();
 
   late AppState _appState;
   bool _listeningToAppState = false;
@@ -110,6 +113,7 @@ class _TaxonomyScreenState extends State<TaxonomyScreen> {
   void dispose() {
     if (_listeningToAppState) _appState.removeListener(_onAppStateChanged);
     _scrollController.dispose();
+    _treeScrollController.dispose();
     _searchController.dispose();
     super.dispose();
   }
@@ -298,6 +302,7 @@ class _TaxonomyScreenState extends State<TaxonomyScreen> {
     _expandedNodes.addAll(path);
     _expandedNodes.removeWhere((n) => !pathSet.contains(n) && !descendants.contains(n));
     _selectedNode = node;
+    _searchMatchNode = node;
   }
 
   void _onNodeTap(TaxonomyNode node, String superCat) {
@@ -374,14 +379,31 @@ class _TaxonomyScreenState extends State<TaxonomyScreen> {
                       ),
                       onChanged: (text) {
                         if (text.isEmpty || _root == null) {
-                          setState(() {});
+                          setState(() => _searchMatchNode = null);
                           return;
                         }
                         final q = text.toLowerCase();
                         final match = _searchInNodes(_root!.children, q, _appState.selectedSuperCat);
                         setState(() {
-                          if (match != null) _navigateToMatch(match, _appState.selectedSuperCat);
+                          if (match != null) {
+                            _navigateToMatch(match, _appState.selectedSuperCat);
+                          } else {
+                            _searchMatchNode = null;
+                          }
                         });
+                        if (match != null) {
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            final ctx = _matchedNodeKey.currentContext;
+                            if (ctx != null) {
+                              Scrollable.ensureVisible(
+                                ctx,
+                                alignment: 0.5,
+                                duration: const Duration(milliseconds: 250),
+                                curve: Curves.easeOut,
+                              );
+                            }
+                          });
+                        }
                       },
                     ),
                   ),
@@ -390,6 +412,7 @@ class _TaxonomyScreenState extends State<TaxonomyScreen> {
                 ConstrainedBox(
                   constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * 0.30),
                   child: SingleChildScrollView(
+                    controller: _treeScrollController,
                     padding: const EdgeInsets.only(bottom: 18),
                     child: Column(
                       children: treeItems.map((item) {
@@ -399,6 +422,7 @@ class _TaxonomyScreenState extends State<TaxonomyScreen> {
                             ? item.node.allSpecies.length
                             : item.node.allSpecies.where((r) => r.superCat == superCat).length;
                         return _TreeNodeRow(
+                          key: item.node == _searchMatchNode ? _matchedNodeKey : null,
                           item: item,
                           isSelected: item.node == _selectedNode,
                           isExpanded: isExpanded,
@@ -570,6 +594,7 @@ class _TreeNodeRow extends StatelessWidget {
   final VoidCallback onTap;
 
   const _TreeNodeRow({
+    super.key,
     required this.item,
     required this.isSelected,
     required this.isExpanded,
